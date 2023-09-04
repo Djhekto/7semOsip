@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QWidget, QStackedLayout,QLineEdit, QGridLayout, QLabel,QTableWidget, QTableWidgetItem
 from PySide6.QtGui import QAction, QColor
+import numpy as np
 import pyqtgraph as pg
 
 
@@ -80,13 +81,24 @@ class MainWindow(QMainWindow):
 #--------------------------------------------------------------------------
         self.layout_graph = QVBoxLayout()
         
-        custom_colour = QColor(240,240,255)
-        pg_colour1 = pg.mkColor(custom_colour)
+        custom_colour_bg = QColor(240,240,255)
+        pg_colour1 = pg.mkColor(custom_colour_bg)
+        custom_colour_gr = QColor(0,0,128)
+        pg_colour2 = pg.mkColor(custom_colour_gr)
 		
         self.plot1 = pg.PlotWidget()
-        self.plot1.plot([1, 2, 3, 4, 5], [30, 32, 34, 32, 33])
         self.plot1.setBackground(pg_colour1)
+        self.plot1.showGrid(x=True, y=True, alpha=1.0)
+
+        #temp1_o = pg.PlotDataItem(np.array([a for [a,b,c,d] in self.list4d_tocki[1:]], dtype=float),np.array([b for [a,b,c,d] in self.list4d_tocki[1:]], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='old')
+        temp1_o = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
+        self.plot1.addItem(temp1_o)
+
+        self.button3 = QPushButton("Отчистить график")
+        self.button3.clicked.connect(self.clearplot1)
+
         self.layout_graph.addWidget(self.plot1)
+        self.layout_graph.addWidget(self.button3)
         
         self.widget_graph = QWidget()
         self.widget_graph.setLayout(self.layout_graph)
@@ -137,6 +149,11 @@ class MainWindow(QMainWindow):
 
     def debug_read_input(self):
         print("knopka")
+ 
+    def clearplot1(self):
+        self.plot1.clear()
+        self.plot1.showGrid(x=True, y=True, alpha=1.0)
+
  
 app = QApplication([])
 window = MainWindow()
