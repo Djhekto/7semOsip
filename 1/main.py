@@ -4,6 +4,9 @@ import numpy as np
 import pyqtgraph as pg
 from sympy import symbols, diff
 
+def enc(str1):
+    if type(str1)!=type("a"):        str1 = str(str1)
+    return "(" + str1 + ")"
 
 class MainWindow(QMainWindow):
     def __init__(self): 
@@ -18,13 +21,13 @@ class MainWindow(QMainWindow):
         self.txt_fun2 = QLineEdit( "y + a*x*(1-x)" )
         self.txt_fun1rev = QLineEdit( "x - y" )
         self.txt_fun2rev = QLineEdit( "a*(x**2) - a*x + a*(y**2) + a*y - 2*a*x*y + y" )
-        self.txt_parvalue = QLineEdit( "1,35" )
+        self.txt_parvalue = QLineEdit( "1.35" )
         self.txt_parname = QLineEdit( "a" )
         self.txt_accvalue = QLineEdit( "0.1" )
         self.txt_symbols = QLineEdit( "x,y" )
         self.txt_iterc = QLineEdit( "1000" )
         self.txt_iterp = QLineEdit( "1000" )
-        self.txt_start = QLineEdit( "0,0")
+        self.txt_start = QLineEdit( "[0,0]")
 
         self.sup1 = QLabel()
         self.sup1.setText("Система уравнений")
@@ -158,25 +161,41 @@ class MainWindow(QMainWindow):
         self.str_fun2 = self.txt_fun2.text()
         self.str_fun1rev = self.txt_fun1rev.text()
         self.str_fun2rev = self.txt_fun2rev.text()
-        self.str_parvalue = self.txt_parvalue.text()
-        self.str_parname = self.txt_parname.text()
         self.str_accvalue = self.txt_accvalue.text()
         self.str_iterc = self.txt_iterc.text()
         self.str_iterp = self.txt_iterp.text()
-        self.str_start = self.txt_start.text()
         
-        self.str_symbols = self.txt_symbols.text().split(",")
-        print(self.str_symbols)
-        x , y = symbols(self.str_symbols[0]), symbols(self.str_symbols[1])
-
-        df1_dx = diff(self.str_fun1, x)
-        df1_dy = diff(self.str_fun1, y)
-        df2_dx = diff(self.str_fun2, x)
-        df2_dy = diff(self.str_fun2, y)
-        Df = [[df1_dx,df1_dy],[df2_dx,df2_dy]]
+        self.str_start = eval(self.txt_start.text())
+        self.symbols = []
+        for ii,elem in enumerate(self.txt_symbols.text().split(",")):
+            self.symbols.append(elem)
+        print(self.symbols, self.str_start)
+        
+        df1_dx = diff(self.str_fun1, self.symbols[0])
+        df1_dy = diff(self.str_fun1,  self.symbols[1])
+        df2_dx = diff(self.str_fun2,  self.symbols[0])
+        df2_dy = diff(self.str_fun2,  self.symbols[1])
+        self.Df_const = [[df1_dx,df1_dy],[df2_dx,df2_dy]]
+        print(self.Df_const)
+        
+        self.str_parvalue = self.txt_parvalue.text()
+        self.str_parname = self.txt_parname.text()
+        print(self.str_parvalue, self.str_parname)
+        
+        Df = self.Df_const
+        for i, ilist in enumerate(Df):
+            for ii,iielem in enumerate(ilist):
+                for iii,symb in enumerate(self.symbols):
+                    Df[i][ii] = str(Df[i][ii]).replace(symb, enc(self.str_start[iii]))
+                Df[i][ii] = eval(Df[i][ii].replace(self.str_parname, enc(self.str_parvalue)))
+                print(Df[i][ii])
+        
         print(Df)
 
- 
+
+
+
+
 app = QApplication([])
 window = MainWindow()
 window.show()
