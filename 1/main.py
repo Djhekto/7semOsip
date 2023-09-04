@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButto
 from PySide6.QtGui import QAction, QColor
 import numpy as np
 import pyqtgraph as pg
+from sympy import symbols, diff
 
 
 class MainWindow(QMainWindow):
@@ -146,13 +147,34 @@ class MainWindow(QMainWindow):
 
     def switch_layout_out(self):
         self.layout_stack.setCurrentIndex(2)
-
-    def debug_read_input(self):
-        print("knopka")
  
     def clearplot1(self):
         self.plot1.clear()
         self.plot1.showGrid(x=True, y=True, alpha=1.0)
+
+    def debug_read_input(self):
+        print("knopka")
+        self.str_fun1 = self.txt_fun1.text()
+        self.str_fun2 = self.txt_fun2.text()
+        self.str_fun1rev = self.txt_fun1rev.text()
+        self.str_fun2rev = self.txt_fun2rev.text()
+        self.str_parvalue = self.txt_parvalue.text()
+        self.str_parname = self.txt_parname.text()
+        self.str_accvalue = self.txt_accvalue.text()
+        self.str_iterc = self.txt_iterc.text()
+        self.str_iterp = self.txt_iterp.text()
+        self.str_start = self.txt_start.text()
+        
+        self.str_symbols = self.txt_symbols.text().split(",")
+        print(self.str_symbols)
+        x , y = symbols(self.str_symbols[0]), symbols(self.str_symbols[1])
+
+        df1_dx = diff(self.str_fun1, x)
+        df1_dy = diff(self.str_fun1, y)
+        df2_dx = diff(self.str_fun2, x)
+        df2_dy = diff(self.str_fun2, y)
+        Df = [[df1_dx,df1_dy],[df2_dx,df2_dy]]
+        print(Df)
 
  
 app = QApplication([])
