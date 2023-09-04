@@ -44,7 +44,9 @@ class MainWindow(QMainWindow):
         self.sup9.setText("Значение вектора начальной точки:")
 
         self.button1 = QPushButton("построить график")
+        self.button2 = QPushButton("[debug] загрузить данные в прогу")
         #self.button1.clicked.connect(self.postroit1)
+        self.button2.clicked.connect(self.debug_read_input)
 
         self.layout_input.addWidget(self.sup1,0,0)
         self.layout_input.addWidget(self.sup2,0,1)
@@ -67,7 +69,8 @@ class MainWindow(QMainWindow):
         self.layout_input.addWidget(self.sup9,9,0)
         self.layout_input.addWidget(self.txt_start,9,1)
         
-        self.layout_input.addWidget(self.button1,10,0)
+        self.layout_input.addWidget(self.button2,10,0)
+        self.layout_input.addWidget(self.button1,10,1)
 
         
         self.widget_input = QWidget()
@@ -132,10 +135,13 @@ class MainWindow(QMainWindow):
     def switch_layout_out(self):
         self.layout_stack.setCurrentIndex(2)
 
+    def debug_read_input(self):
+        print("knopka")
+ 
 app = QApplication([])
 window = MainWindow()
 window.show()
-app.exec_()
+app.exec()
 
 """
 def string_to_lambda(s):
