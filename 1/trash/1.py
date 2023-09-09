@@ -3,9 +3,6 @@ from PySide6.QtGui import QAction, QColor
 import numpy as np
 import pyqtgraph as pg
 from sympy import symbols, diff
-from numpy import linalg as LA
-
-
 
 def enc(str1):
     if type(str1)!=type("a"):        str1 = str(str1)
@@ -160,120 +157,40 @@ class MainWindow(QMainWindow):
 
     def debug_read_input(self):
         print("knopka")
-        str_fun1 =  self.txt_fun1.text()
-        str_fun2 =  self.txt_fun2.text()
-        str_fun1rev = self.txt_fun1rev.text()
-        str_fun2rev = self.txt_fun2rev.text()
-        str_accvalue = self.txt_accvalue.text()
-        str_iterc =  self.txt_iterc.text()
-        str_iterp =  self.txt_iterp.text()
+        self.str_fun1 = self.txt_fun1.text()
+        self.str_fun2 = self.txt_fun2.text()
+        self.str_fun1rev = self.txt_fun1rev.text()
+        self.str_fun2rev = self.txt_fun2rev.text()
+        self.str_accvalue = self.txt_accvalue.text()
+        self.str_iterc = self.txt_iterc.text()
+        self.str_iterp = self.txt_iterp.text()
         
-        str_start = eval( self.txt_start.text())
-        symbols = []
-        for ii,elem in enumerate( self.txt_symbols.text().split(",")):
-             symbols.append(elem)
-        print( symbols,  str_start)
+        self.str_start = eval(self.txt_start.text())
+        self.symbols = []
+        for ii,elem in enumerate(self.txt_symbols.text().split(",")):
+            self.symbols.append(elem)
+        print(self.symbols, self.str_start)
         
-        df1_dx = diff( str_fun1,  symbols[0])
-        df1_dy = diff( str_fun1,   symbols[1])
-        df2_dx = diff( str_fun2,   symbols[0])
-        df2_dy = diff( str_fun2,   symbols[1])
-        Df_const = [[df1_dx,df1_dy],[df2_dx,df2_dy]]
-        print( Df_const)
+        df1_dx = diff(self.str_fun1, self.symbols[0])
+        df1_dy = diff(self.str_fun1,  self.symbols[1])
+        df2_dx = diff(self.str_fun2,  self.symbols[0])
+        df2_dy = diff(self.str_fun2,  self.symbols[1])
+        self.Df_const = [[df1_dx,df1_dy],[df2_dx,df2_dy]]
+        print(self.Df_const)
         
-        str_parvalue =  self.txt_parvalue.text()
-        str_parname =  self.txt_parname.text()
-        print( str_parvalue,  str_parname)
+        self.str_parvalue = self.txt_parvalue.text()
+        self.str_parname = self.txt_parname.text()
+        print(self.str_parvalue, self.str_parname)
         
-        Df =  Df_const
+        Df = self.Df_const
         for i, ilist in enumerate(Df):
             for ii,iielem in enumerate(ilist):
-                for iii,symb in enumerate( symbols):
-                    Df[i][ii] = str(Df[i][ii]).replace(symb, enc( str_start[iii]))
-                Df[i][ii] = eval(Df[i][ii].replace( str_parname, enc( str_parvalue)))
+                for iii,symb in enumerate(self.symbols):
+                    Df[i][ii] = str(Df[i][ii]).replace(symb, enc(self.str_start[iii]))
+                Df[i][ii] = eval(Df[i][ii].replace(self.str_parname, enc(self.str_parvalue)))
                 print(Df[i][ii])
         
         print(Df)
-    
-    def vova_kod(self):
-        eps = 0.01
-        eps0 = 5e-7
-        DF = [[2.35, 1],[1.35,1]]
-        w, v = LA.eig(DF)
-
-        Vu = v[:,0]     # unstable manifold
-        Vs = v[:,1]     # stable manifold
-        
-        # Plot the unstable manifold
-        Hr = np.zeros(shape=(100,150))
-        Ht = np.zeros(shape=(100,150))
-        for eloop in range(0,100):
-
-            eps = eps0*eloop
-
-            x_n0 = eps*Vu[0]
-            y_n0 = eps*Vu[1]
-
-            Nloop = np.ceil(-6*np.log(eps0)/np.log(eloop+2))
-            flag = 1
-            cnt = 0
-
-            while flag==1 and cnt < Nloop:
-                # тут менять формулу надо 
-                # стандарт мэп (Чириков)
-                x_n1=x_n0+y_n0+1.35*x_n0*(1-x_n0)
-                y_n1=y_n0+1.35*x_n0*(1-x_n0)
-
-                x_n0 = x_n1
-                y_n0 = y_n1
-
-                if y_n1 > 4*np.pi:
-                    flag = 0
-
-                Hr[eloop,cnt] = x_n0
-                Ht[eloop,cnt] = y_n0
-                cnt = cnt+1
-
-        # x = Hr[0:11,12]
-        # y = Ht[0:11,12]
-        x = Hr[0:99,12]
-        y = Ht[0:99,12]
-
-        # Plot the stable manifold
-        del Hr, Ht
-        del x,y
-        Hr = np.zeros(shape=(100,150))
-        Ht = np.zeros(shape=(100,150))
-
-        for eloop in range(0,100):
-            eps = eps0*eloop
-        
-            x_n0 = eps*0.83125573
-            y_n0 = eps*(-0.4438839)
-
-            Nloop = np.ceil(-6*np.log(eps0)/np.log(eloop+2))
-            flag = 1
-            cnt = 0
-
-            while flag==1 and cnt < Nloop:
-                
-                x_n1=x_n0-y_n0
-                y_n1=y_n0-1.35*x_n1*(1-x_n1)
-
-                x_n0 = x_n1
-                y_n0 = y_n1
-                
-                if y_n1 > 4*np.pi:
-                    flag = 0 
-                Hr[eloop,cnt] = x_n0
-                Ht[eloop,cnt] = y_n0
-                cnt = cnt+1
-
-        # x = Hr[0:9,12]
-        # y = Ht[0:9,12]
-        x = Hr[0:79,12]
-        y = Ht[0:79,12]
-
 
 
 
@@ -283,4 +200,16 @@ app = QApplication([])
 window = MainWindow()
 window.show()
 app.exec()
-#window.vova_kod()
+
+"""
+def string_to_lambda(s):
+    return eval(s)
+
+# Test
+s = 'lambda x: x + 2'
+f = string_to_lambda(s)
+print(f(5))
+
+
+ 
+"""
