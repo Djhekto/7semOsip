@@ -7,10 +7,43 @@ from numpy import linalg as LA
 from sympy import Symbol, diff, expand, Matrix
 
 
+def str_mul(str1,str2):
+    return enc(str(str1) + "*" + enc(str2))
 
 def enc(str1):
     if type(str1)!=type("a"):        str1 = str(str1)
     return "(" + str1 + ")"
+
+class Point:
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+
+def onSegment(p, q, r):
+	if ( (q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
+		(q.y <= max(p.y, r.y)) and (q.y >= min(p.y, r.y))):
+		return True
+	return False
+
+def orientation(p, q, r):
+	
+	val = (float(q.y - p.y) * (r.x - q.x)) - (float(q.x - p.x) * (r.y - q.y))
+	if (val > 0):  return 1
+	elif (val < 0):  return 2
+	else:  return 0
+
+def doIntersect(p1,q1,p2,q2):
+	o1 = orientation(p1, q1, p2)
+	o2 = orientation(p1, q1, q2)
+	o3 = orientation(p2, q2, p1)
+	o4 = orientation(p2, q2, q1)
+
+	if ((o1 != o2) and (o3 != o4)): return True
+	if ((o1 == 0) and onSegment(p1, p2, q1)): return True
+	if ((o2 == 0) and onSegment(p1, q2, q1)): return True
+	if ((o3 == 0) and onSegment(p2, p1, q2)): return True
+	if ((o4 == 0) and onSegment(p2, q1, q2)): return True
+	return False
 
 class MainWindow(QMainWindow): 
     myiter = 0
@@ -211,14 +244,57 @@ class MainWindow(QMainWindow):
         #to4ki.append([0,0,0,0]) 
         to4ki.append([float(self.v1x.text()),float(self.v1y.text()),
                       float(self.v2x.text()),float(self.v2y.text())])
+        self.myiter = 1
         print(to4ki)
 
+        str_accvalue = str(self.accvalue.text())
+        str_iterc =  int(self.iterc.text())
+        str_iterp =  int(self.iterp.text())
+        print( str_accvalue , str_iterc , str_iterp )
+#---------------------------------------------------------------------------------------------------------        
         
-        str_accvalue = self.accvalue.text()
-        str_iterc =  self.iterc.text()
-        str_iterp =  self.iterp.text()
+        i1 = 0
+        while i1<str_iterc:
+            i1+=1
+            list_append_me = []
+            new1 = str_fun1                           #.replace("t",enc(tz_vlevo))
+            new2 = str_fun2
+            new1r = str_fun1rev
+            new2r = str_fun1rev
+            for ind,symb in enumerate(symbols):
+                if ind==0:#replace x
+                    new1 = new1.replace(symb,enc(to4ki[self.myiter][0]))
+                    new2 = new2.replace(symb,enc(to4ki[self.myiter][0]))
+                    new1r = new1r.replace(symb,enc(to4ki[self.myiter][2]))
+                    new2r = new2r.replace(symb,enc(to4ki[self.myiter][2]))
+                if ind==1:#replace y
+                    new1 = new1.replace(symb,enc(to4ki[self.myiter][1]))
+                    new2 = new2.replace(symb,enc(to4ki[self.myiter][1]))
+                    new1r = new1r.replace(symb,enc(to4ki[self.myiter][3]))
+                    new2r = new2r.replace(symb,enc(to4ki[self.myiter][3]))
+            new1 = eval(new1); new2 = eval(new2); new1r = eval(new1r); new2r = eval(new2r);
+            #print(new1,new2,new1r,new2r)
+
+            
+            list_append_me = [eval(enc(to4ki[self.myiter][0])+"+"+str_mul(new1 ,str_accvalue)),
+                              eval(enc(to4ki[self.myiter][1])+"+"+str_mul(new2 ,str_accvalue)),
+                              eval(enc(to4ki[self.myiter][2])+"+"+str_mul(new1r ,str_accvalue)),
+                              eval(enc(to4ki[self.myiter][3])+"+"+str_mul(new2r ,str_accvalue)),
+                              ]
+
+            print(list_append_me)
+            self.myiter+=1
+            to4ki.append(list_append_me)
         
+        pass
+#---------------------------------------------------------------------------------------------------------        
         
+        #ttemp1 = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
+        ttemp1 = pg.PlotDataItem(np.array([e[0] for e in to4ki], dtype=float),np.array([e[1] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
+        ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki], dtype=float),np.array([e[3] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
+        self.plot1.addItem(ttemp1)
+        self.plot1.addItem(ttemp2)
+
         
         
         pass

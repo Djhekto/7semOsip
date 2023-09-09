@@ -2,10 +2,9 @@ used links
 
 https://www.phind.com/
 https://www.pythonguis.com/tutorials/pyqt6-actions-toolbars-menus/
-
-
-
-
+https://www.interestprograms.ru/source-codes-peresechenie-dvuh-otrezkov
+http://www.cleverstudents.ru/line_and_plane/intersection_point_of_straight_lines.html
+https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
 
 
 
