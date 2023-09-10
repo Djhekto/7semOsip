@@ -1,5 +1,6 @@
 # This code is contributed by Ansh Riyal
 #https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+#https://stackoverflow.com/questions/3252194/numpy-and-line-intersections
 
 class Point:
 	def __init__(self, x, y):
@@ -31,13 +32,27 @@ def doIntersect(p1,q1,p2,q2):
 	if ((o3 == 0) and onSegment(p2, p1, q2)): return True
 	if ((o4 == 0) and onSegment(p2, q1, q2)): return True
 	return False
+import numpy as np
 
-p1 = Point(1, 1)
-q1 = Point(10, 1)
-p2 = Point(1, 2)
-q2 = Point(10, 2)
+def get_intersect(a1, a2, b1, b2):
+
+    s = np.vstack([a1,a2,b1,b2])        
+    h = np.hstack((s, np.ones((4, 1)))) 
+    l1 = np.cross(h[0], h[1])           
+    l2 = np.cross(h[2], h[3])          
+    x, y, z = np.cross(l1, l2)          
+    if z == 0:                          
+        return (float('inf'), float('inf'))
+    return (x/z, y/z)
+
+p1 = Point(0, 0)
+q1 = Point(10, 10)
+p2 = Point(1, 0)
+q2 = Point(0, 1)
 
 if doIntersect(p1, q1, p2, q2):
 	print("Yes")
+	print(get_intersect((0, 0), (10, 10), (1, 0), (0, 1)) )
 else:
 	print("No")
+

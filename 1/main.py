@@ -14,6 +14,15 @@ def enc(str1):
     if type(str1)!=type("a"):        str1 = str(str1)
     return "(" + str1 + ")"
 
+def get_intersect(a1, a2, b1, b2):
+    s = np.vstack([a1,a2,b1,b2])        
+    h = np.hstack((s, np.ones((4, 1)))) 
+    l1 = np.cross(h[0], h[1])           
+    l2 = np.cross(h[2], h[3])          
+    x, y, z = np.cross(l1, l2)          
+    if z == 0:      return (float('inf'), float('inf'))
+    return (x/z, y/z)
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -65,7 +74,7 @@ class MainWindow(QMainWindow):
         self.parname = QLineEdit( "a" )
         self.accvalue = QLineEdit( "0.1" )
         self.symbols = QLineEdit( "x,y" )
-        self.iterc = QLineEdit( "10" )
+        self.iterc = QLineEdit( "100" )
         self.iterp = QLineEdit( "10" )
         self.start = QLineEdit( "[0,0]")
         self.v1x = QLineEdit( " 2.1583123951777 ")
@@ -245,6 +254,7 @@ class MainWindow(QMainWindow):
         #to4ki.append([0,0,0,0]) 
         to4ki.append([float(self.v1x.text()),float(self.v1y.text()),
                       float(self.v2x.text()),float(self.v2y.text())])
+        #to4ki.append([0.1,0.1,0.1,-0.1])
         self.myiter = 1
         print(to4ki)
 
@@ -304,19 +314,29 @@ class MainWindow(QMainWindow):
                     q1 = Point(to4ki[ii-1][2], to4ki[ii-1][3])
                     q2 = Point(to4ki[ii][2], to4ki[ii][3])
                     print( doIntersect(p1, q1, p2, q2) )
-                    if( doIntersect(p1, q1, p2, q2) ):
+                    if( doIntersect(p1, p2, q1, q2) ):
                         max_i = i
                         max_ii = ii
                         not_stop = False
+                        last_of_us = get_intersect((to4ki[i-1][0], to4ki[i-1][1]), 
+                                            (to4ki[i][0], to4ki[i][1]), 
+                                            (to4ki[ii-1][2], to4ki[ii-1][3]), 
+                                            (to4ki[ii][2], to4ki[ii][3])        )
+                        print(last_of_us)
                         print(max_i, max_ii)
+                        to4ki[max_i][0] = last_of_us[0]
+                        to4ki[max_ii][2] = last_of_us[0]
+                        to4ki[max_i][1] = last_of_us[1]
+                        to4ki[max_ii][3] = last_of_us[1]
+
         
-        to4ki = to4ki[:max([max_i,max_ii])-1]
+        #to4ki = to4ki[:max([max_i,max_ii])]
         
 #---------------------------------------------------------------------------------------------------------
         #ttemp1 = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
-        ttemp1 = pg.PlotDataItem(np.array([e[0] for e in to4ki], dtype=float),np.array([e[1] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
+        ttemp1 = pg.PlotDataItem(np.array([e[0] for e in to4ki[:max_i+1]], dtype=float),np.array([e[1] for e in to4ki[:max_i+1]], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
         print(to4ki)
-        ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki], dtype=float),np.array([e[3] for e in to4ki], dtype=float), pen=pg.mkPen("b", width=4), name='stable')
+        ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki[:max_ii+1]], dtype=float),np.array([e[3] for e in to4ki[:max_ii+1]], dtype=float), pen=pg.mkPen("b", width=4), name='stable')
         self.plot1.addItem(ttemp1)
         self.plot1.addItem(ttemp2)
 
