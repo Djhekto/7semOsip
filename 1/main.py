@@ -295,12 +295,28 @@ class MainWindow(QMainWindow):
         q2 = Point(to4ki[5+1][2], to4ki[5+1][3])
         print( doIntersect(p1, q1, p2, q2) )
         
+        max_i = str_iterc; max_ii = str_iterc; not_stop = True
+        for i in range(2,str_iterc):
+            for ii in range(2,i):
+                if not_stop:
+                    p1 = Point(to4ki[i-1][0], to4ki[i-1][1])
+                    p2 = Point(to4ki[i][0], to4ki[i][1])
+                    q1 = Point(to4ki[ii-1][2], to4ki[ii-1][3])
+                    q2 = Point(to4ki[ii][2], to4ki[ii][3])
+                    print( doIntersect(p1, q1, p2, q2) )
+                    if( doIntersect(p1, q1, p2, q2) ):
+                        max_i = i
+                        max_ii = ii
+                        not_stop = False
+                        print(max_i, max_ii)
         
+        to4ki = to4ki[:max([max_i,max_ii])-1]
         
 #---------------------------------------------------------------------------------------------------------
         #ttemp1 = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
         ttemp1 = pg.PlotDataItem(np.array([e[0] for e in to4ki], dtype=float),np.array([e[1] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
-        ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki], dtype=float),np.array([e[3] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
+        print(to4ki)
+        ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki], dtype=float),np.array([e[3] for e in to4ki], dtype=float), pen=pg.mkPen("b", width=4), name='stable')
         self.plot1.addItem(ttemp1)
         self.plot1.addItem(ttemp2)
 
