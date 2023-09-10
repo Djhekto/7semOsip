@@ -15,9 +15,10 @@ def enc(str1):
     return "(" + str1 + ")"
 
 class Point:
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        print(x, y, "   -<>-")
 
 def onSegment(p, q, r):
 	if ( (q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
@@ -287,8 +288,16 @@ class MainWindow(QMainWindow):
             to4ki.append(list_append_me)
         
         pass
-#---------------------------------------------------------------------------------------------------------        
+#---------------------------------------------------------------------------------------------------------   
+        p1 = Point(to4ki[3][0], to4ki[3][1])
+        p2 = Point(to4ki[3+1][0], to4ki[3+1][1])
+        q1 = Point(to4ki[5][2], to4ki[5][3])
+        q2 = Point(to4ki[5+1][2], to4ki[5+1][3])
+        print( doIntersect(p1, q1, p2, q2) )
         
+        
+        
+#---------------------------------------------------------------------------------------------------------
         #ttemp1 = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
         ttemp1 = pg.PlotDataItem(np.array([e[0] for e in to4ki], dtype=float),np.array([e[1] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
         ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki], dtype=float),np.array([e[3] for e in to4ki], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
