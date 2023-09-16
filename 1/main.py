@@ -4,56 +4,13 @@ from PySide6.QtCore import QSize
 import numpy as np
 import pyqtgraph as pg
 from numpy import linalg as LA
-from sympy import Symbol, diff, expand, Matrix
+#from sympy import Symbol, diff, expand, Matrix
 
+from math import log
 
-def str_mul(str1,str2):
-    return enc(str(str1) + "*" + enc(str2))
-
-def enc(str1):
-    if type(str1)!=type("a"):        str1 = str(str1)
-    return "(" + str1 + ")"
-
-def get_intersect(a1, a2, b1, b2):
-    s = np.vstack([a1,a2,b1,b2])        
-    h = np.hstack((s, np.ones((4, 1)))) 
-    l1 = np.cross(h[0], h[1])           
-    l2 = np.cross(h[2], h[3])          
-    x, y, z = np.cross(l1, l2)          
-    if z == 0:      return (float('inf'), float('inf'))
-    return (x/z, y/z)
-
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        print(x, y, "   -<>-")
-
-def onSegment(p, q, r):
-	if ( (q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
-		(q.y <= max(p.y, r.y)) and (q.y >= min(p.y, r.y))):
-		return True
-	return False
-
-def orientation(p, q, r):
-	
-	val = (float(q.y - p.y) * (r.x - q.x)) - (float(q.x - p.x) * (r.y - q.y))
-	if (val > 0):  return 1
-	elif (val < 0):  return 2
-	else:  return 0
-
-def doIntersect(p1,q1,p2,q2):
-	o1 = orientation(p1, q1, p2)
-	o2 = orientation(p1, q1, q2)
-	o3 = orientation(p2, q2, p1)
-	o4 = orientation(p2, q2, q1)
-
-	if ((o1 != o2) and (o3 != o4)): return True
-	if ((o1 == 0) and onSegment(p1, p2, q1)): return True
-	if ((o2 == 0) and onSegment(p1, q2, q1)): return True
-	if ((o3 == 0) and onSegment(p2, p1, q2)): return True
-	if ((o4 == 0) and onSegment(p2, q1, q2)): return True
-	return False
+import sympy as sp
+import math as ms
+from scipy.spatial import distance
 
 class MainWindow(QMainWindow): 
     myiter = 0
@@ -230,122 +187,157 @@ class MainWindow(QMainWindow):
    
 #===========================================================================================
     def myplot(self):
-        print(self.myiter)
+        self.start1()
+        pass
+    
+    def start1(self):
         
-        symbols = [];         
-        str_start = [float(elem) for elem in eval( self.start.text())]
-        for ii,elem in enumerate( self.symbols.text().split(",")):
-             symbols.append(elem)
-        print( symbols,  str_start)
-        x = Symbol(symbols[0]); y = Symbol(symbols[1])
-        print( x,  y)        
+        self.stable_n = 0
+        self.stable_N = 0
+        self.unstable_n = 0
+        self.unstable_N = 0
+
+        x = sp.Symbol('x')
+        y = sp.Symbol('y')
+        a = sp.Symbol('a')
+        a = 1.35
+        h = 0.1
+        h1= 0.1
+        itercount = 10
+
+        X=eval("x + y + a*x*(1-x)")
+        Y=eval("y + a*x*(1-x)")
+
+        V1 = [eval( " ( (11**0.5)+1)/2 " ), eval( " 1 " )]
+        V2 = [eval(" ( (11**0.5)-1)/2 "),  eval("-1")]
+
+
+        def length(a, b):
+            [x1, y1], [x2, y2] = a, b
+            return (((x1-x2)**2)+((y1-y2)**2))**0.5
+
+        def gen(a, b):
+            x1 = X.subs({x: a[0], y: a[1]})
+            y1 = Y.subs({x: a[0], y: a[1]})
+            x2 = X.subs({x: b[0], y: b[1]})
+            y2 = Y.subs({x: b[0], y: b[1]})
+
+            if length([x1, y1], [x2, y2]) > h:
+                return gen(a, [(a[0]+b[0])/2, (a[1]+b[1])/2])+gen([(a[0]+b[0])/2, (a[1]+b[1])/2], b)
+            else:
+                return [X.subs({x: a[0], y: a[1]}), Y.subs({x: a[0], y: a[1]})]
+
+        def ccw(A,B,C):
+            [ax, ay] = A
+            [bx, by] = B
+            [cx, cy] = C
+            return (cy-ay)*(bx-ax) > (by-ay)*(cx-ax)
         
-        str_parvalue =  self.parvalue.text()
-        str_parname =  self.parname.text()
-        str_fun1 =  str(expand(self.fun1.text().replace( str_parname, enc( str_parvalue))))
-        str_fun2 =  str(expand(self.fun2.text().replace( str_parname, enc( str_parvalue))))
-        str_fun1rev = str(expand(self.fun1rev.text().replace( str_parname, enc( str_parvalue))))
-        str_fun2rev = str(expand(self.fun2rev.text().replace( str_parname, enc( str_parvalue))))
-        print( str_fun1,  str_fun2, str_fun1rev,  str_fun2rev,
-              #type(str_fun1), 
-              sep= "\n" )
+        def intersect(A,B,C,D):
+                return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
-        to4ki = [[str_start[0],str_start[1],str_start[0],str_start[1]]]
-        #to4ki.append([0,0,0,0]) 
-        to4ki.append([float(self.v1x.text()),float(self.v1y.text()),
-                      float(self.v2x.text()),float(self.v2y.text())])
-        #to4ki.append([0.1,0.1,0.1,-0.1])
-        self.myiter = 1
-        print(to4ki)
+        def coef(a, b):
+            (x1, y1) = a[0]
+            (x2, y2) = a[1]
+            (X1, Y1) = b[0]
+            (X2, Y2) = b[1]
+            if intersect(a[0], a[1], b[0], b[1]) == True:
+                a1, b1, c1 = 1/(x2-x1), -1/(y2-y1), x1/(x2-x1) - y1/(y2-y1)
+                a2, b2, c2 = 1/(X2-X1), -1/(Y2-Y1), X1/(X2-X1) - Y1/(Y2-Y1)
+                if (a1*b2-a2*b1) != 0:
+                    ha = [(c1*b2-c2*b1)/(a1*b2-a2*b1), (a1*c2-a2*c1)/(a1*b2-a2*b1)]
+                    if (ha[0] == 0) and (ha[1] == 0):
+                        return 0
+                    else:
+                        if (min(x1, x2) <= ha[0]) and (max(x1, x2) >= ha[0]):
+                            if (min(X1, X2) <= ha[0]) and (max(X1, X2) >= ha[0]):
+                                if (min(y1, y2) <= ha[1]) and (max(y1, y2) >= ha[1]):
+                                    if (min(Y1, Y2) <= ha[1]) and (max(Y1, Y2) >= ha[1]):
+                                        return ha
+                else:
+                    return 0
+            else: 
+                return 0
 
-        str_accvalue = str(self.accvalue.text())
-        str_iterc =  int(self.iterc.text())
-        str_iterp =  int(self.iterp.text())
-        print( str_accvalue , str_iterc , str_iterp )
-#---------------------------------------------------------------------------------------------------------        
+        V1_x_folder = [0.0, V1[0], X.subs({x: V1[0], y: V1[1]})]
+        V1_y_folder = [0.0, V1[1], Y.subs({x: V1[0], y: V1[1]})]
         
-        i1 = 0
-        while i1<str_iterc:
-            i1+=1
-            list_append_me = []
-            new1 = str_fun1                           #.replace("t",enc(tz_vlevo))
-            new2 = str_fun2
-            new1r = str_fun1rev
-            new2r = str_fun1rev
-            for ind,symb in enumerate(symbols):
-                if ind==0:#replace x
-                    new1 = new1.replace(symb,enc(to4ki[self.myiter][0]))
-                    new2 = new2.replace(symb,enc(to4ki[self.myiter][0]))
-                    new1r = new1r.replace(symb,enc(to4ki[self.myiter][2]))
-                    new2r = new2r.replace(symb,enc(to4ki[self.myiter][2]))
-                if ind==1:#replace y
-                    new1 = new1.replace(symb,enc(to4ki[self.myiter][1]))
-                    new2 = new2.replace(symb,enc(to4ki[self.myiter][1]))
-                    new1r = new1r.replace(symb,enc(to4ki[self.myiter][3]))
-                    new2r = new2r.replace(symb,enc(to4ki[self.myiter][3]))
-            new1 = eval(new1); new2 = eval(new2); new1r = eval(new1r); new2r = eval(new2r);
-            #print(new1,new2,new1r,new2r)
-
+        for i in range(itercount-3):
+            X_current =X.subs({x: V1_x_folder[-1]*h1, y: V1_y_folder[-1]*h1})
+            Y_current = Y.subs({x: V1_x_folder[-1]*h1, y: V1_y_folder[-1]*h1})
+            V1_x_folder.append(X_current)
+            V1_y_folder.append(Y_current)
             
-            list_append_me = [eval(enc(to4ki[self.myiter][0])+"+"+str_mul(new1 ,str_accvalue)),
-                              eval(enc(to4ki[self.myiter][1])+"+"+str_mul(new2 ,str_accvalue)),
-                              eval(enc(to4ki[self.myiter][2])+"+"+str_mul(new1r ,str_accvalue)),
-                              eval(enc(to4ki[self.myiter][3])+"+"+str_mul(new2r ,str_accvalue)),
-                              ]
+        print(V1_x_folder,V1_y_folder ,"_--------------------\n\n\n\n\n")
 
-            print(list_append_me)
-            self.myiter+=1
-            to4ki.append(list_append_me)
-        
-        pass
-#---------------------------------------------------------------------------------------------------------   
-        p1 = Point(to4ki[3][0], to4ki[3][1])
-        p2 = Point(to4ki[3+1][0], to4ki[3+1][1])
-        q1 = Point(to4ki[5][2], to4ki[5][3])
-        q2 = Point(to4ki[5+1][2], to4ki[5+1][3])
-        print( doIntersect(p1, q1, p2, q2) )
-        
-        max_i = str_iterc; max_ii = str_iterc; not_stop = True
-        for i in range(2,str_iterc):
-            for ii in range(2,i):
-                if not_stop:
-                    p1 = Point(to4ki[i-1][0], to4ki[i-1][1])
-                    p2 = Point(to4ki[i][0], to4ki[i][1])
-                    q1 = Point(to4ki[ii-1][2], to4ki[ii-1][3])
-                    q2 = Point(to4ki[ii][2], to4ki[ii][3])
-                    print( doIntersect(p1, q1, p2, q2) )
-                    if( doIntersect(p1, p2, q1, q2) ):
-                        max_i = i
-                        max_ii = ii
-                        not_stop = False
-                        last_of_us = get_intersect((to4ki[i-1][0], to4ki[i-1][1]), 
-                                            (to4ki[i][0], to4ki[i][1]), 
-                                            (to4ki[ii-1][2], to4ki[ii-1][3]), 
-                                            (to4ki[ii][2], to4ki[ii][3])        )
-                        print(last_of_us)
-                        print(max_i, max_ii)
-                        to4ki[max_i][0] = last_of_us[0]
-                        to4ki[max_ii][2] = last_of_us[0]
-                        to4ki[max_i][1] = last_of_us[1]
-                        to4ki[max_ii][3] = last_of_us[1]
+        u = []
+        self.stable_n = len(V1_x_folder)
+        for i in range(len(V1_x_folder)-1):
+            u = u + gen([V1_x_folder[i], V1_y_folder[i]], [V1_x_folder[i+1], V1_y_folder[i+1]])
+        print("assssssssdasdas",u)
+        V1_x_folder, V1_y_folder = u[0::2], u[1::2]
+        self.stable_N = len(V1_x_folder)
 
-        
-        #to4ki = to4ki[:max([max_i,max_ii])]
-        
-#---------------------------------------------------------------------------------------------------------
-        #ttemp1 = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
-        ttemp1 = pg.PlotDataItem(np.array([e[0] for e in to4ki[:max_i+1]], dtype=float),np.array([e[1] for e in to4ki[:max_i+1]], dtype=float), pen=pg.mkPen("g", width=4), name='stable')
-        print(to4ki)
-        ttemp2 = pg.PlotDataItem(np.array([e[2] for e in to4ki[:max_ii+1]], dtype=float),np.array([e[3] for e in to4ki[:max_ii+1]], dtype=float), pen=pg.mkPen("b", width=4), name='stable')
-        self.plot1.addItem(ttemp1)
-        self.plot1.addItem(ttemp2)
+        print(V1_x_folder, end = "\n\n")
+        print(V1_y_folder, end = "\n\n")
 
+        X=eval("x - y")
+        Y=eval("y - a*(x-y)*(1-x+y)" )
+
+        V2_x_folder = [0.0, V2[0], X.subs({x: V2[0], y: V2[1]})]
+        V2_y_folder = [0.0, V2[1], Y.subs({x: V2[0], y: V2[1]})]
+
+        for i in range(itercount-3):
+            X_current =X.subs({x: V2_x_folder[-1]*h1, y: V2_y_folder[-1]*h1})
+            Y_current = Y.subs({x: V2_x_folder[-1]*h1, y: V2_y_folder[-1]*h1})
+            V2_x_folder.append(X_current)
+            V2_y_folder.append(Y_current)
+
+        u = []
+        self.unstable_n = len(V2_x_folder)
+        for i in range(len(V2_x_folder)-1):
+            u = u + gen([V2_x_folder[i], V2_y_folder[i]], [V2_x_folder[i+1], V2_y_folder[i+1]])
+        #print(u)
+        V2_x_folder, V2_y_folder = u[0::2], u[1::2]
+        self.unstable_N = len(V2_x_folder)
+
+        print(V2_x_folder, end = "\n\n")
+        print(V2_y_folder, end = "\n\n")
+
+        def intersection(V1_x_folder, V1_y_folder, V2_x_folder, V2_y_folder):
+            first_list = list(zip(V1_x_folder,V1_y_folder))
+            second_list = list(zip(V2_x_folder, V2_y_folder))
+            for i in range(len(first_list)-1):
+                for j in range(len(second_list)-1):
+                    saver = coef([first_list[i], first_list[i+1]], [second_list[j], second_list[j+1]])
+                    if saver != 0 and saver != None:                
+                        V1_x_folder = V1_x_folder[:i+1] 
+                        V1_x_folder.append(saver[0])
+                        V2_x_folder = V2_x_folder[:j+1] 
+                        V2_x_folder.append(saver[0])
+                        V1_y_folder = V1_y_folder[:i+1] 
+                        V1_y_folder.append(saver[1])
+                        V2_y_folder = V2_y_folder[:j+1] 
+                        V2_y_folder.append(saver[1])
+                        return [[V1_x_folder, V1_y_folder], [V2_x_folder, V2_y_folder]]
         
+        u = intersection(V1_x_folder, V1_y_folder, V2_x_folder, V2_y_folder)
         
-        pass
+        ttemp1 = pg.PlotDataItem(np.array(u[0][0], dtype=float) , np.array(u[0][1], dtype=float) , 
+                                                                       pen=pg.mkPen("r", width=4), name='stable')
+        self.plot1.addItem(ttemp1)         
+        ttemp2 = pg.PlotDataItem(np.array(u[1][0], dtype=float) , np.array(u[1][1], dtype=float) , 
+                                                                       pen=pg.mkPen("black", width=4), name='unstable')
+        self.plot1.addItem(ttemp2)        
+        
+        print(f"stable   n {  self.stable_n}   N {  self.stable_N}")
+        print(f"unstable n {self.unstable_n}   N {self.unstable_N}")
+        entropia = log(max([self.stable_N,self.unstable_N]))/itercount
+        print(f"Энтропия {entropia}")
+
+
 
 app = QApplication([])
 window = MainWindow()
 window.show()
 app.exec()
-#window.vova_kod()
