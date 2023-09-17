@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self): 
         super(MainWindow, self).__init__()
-        self.setWindowTitle("prog -997")
+        self.setWindowTitle("Homoclinical dot and smth else")
         self.layout_stack = QStackedLayout()
 
 #--------------------------------------------------------------------------
@@ -26,12 +26,11 @@ class MainWindow(QMainWindow):
         self.fun1 = QLineEdit( "x + y + a*x*(1-x)" )
         self.fun2 = QLineEdit( "y + a*x*(1-x)" )
         self.fun1rev = QLineEdit( "x - y" )
-        self.fun2rev = QLineEdit( "a*(x**2) - a*x + a*(y**2) + a*y - 2*a*x*y + y" )
+        self.fun2rev = QLineEdit( "y - a*(x-y)*(1-x+y)" )
         self.parvalue = QLineEdit( "1.35" )
         self.parname = QLineEdit( "a" )
-        self.accvalue = QLineEdit( "0.1" )
-        self.symbols = QLineEdit( "x,y" )
-        self.iterc = QLineEdit( "100" )
+        self.accvalue = QLineEdit( "0.05" )
+        self.preaccvalue = QLineEdit( "0.1" )
         self.iterp = QLineEdit( "10" )
         self.start = QLineEdit( "[0,0]")
         self.v1x = QLineEdit( " 2.1583123951777 ")
@@ -76,11 +75,11 @@ class MainWindow(QMainWindow):
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,2 ,1 )
 
-        self.group1 = QGroupBox("Кол-во итераций посчитать сразу и по кнопке")
+        self.group1 = QGroupBox("Изначальные итерации и точность")
         self.group1.setMaximumSize(QSize(300, 200)) 
         layout1 = QGridLayout()
-        layout1.addWidget(self.iterc , 0 , 0 )
-        layout1.addWidget(self.iterp , 0, 1)
+        layout1.addWidget(self.iterp , 0, 0)
+        layout1.addWidget(self.preaccvalue , 0, 1)
         layout1.addWidget(self.button1 , 1 , 0 )
         layout1.addWidget(self.button3 , 1, 1)
         self.group1.setLayout(layout1)        
@@ -116,7 +115,6 @@ class MainWindow(QMainWindow):
         self.plot1.setBackground(pg_colour1)
         self.plot1.showGrid(x=True, y=True, alpha=1.0)
 
-        #temp1_o = pg.PlotDataItem(np.array([a for [a,b,c,d] in self.list4d_tocki[1:]], dtype=float),np.array([b for [a,b,c,d] in self.list4d_tocki[1:]], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='old')
         temp1_o = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
         self.plot1.addItem(temp1_o)
 
@@ -131,14 +129,11 @@ class MainWindow(QMainWindow):
         self.layout_stack.addWidget(self.widget_graph)
 
 #--------------------------------------------------------------------------
-        self.layout_out = QGridLayout()
+        self.layout_out = QVBoxLayout()
 
-        self.table = QTableWidget(10, 10, self)
-        for i in range(10):
-            for j in range(10):
-                self.table.setItem(i, j, QTableWidgetItem(f"Item {i}-{j}"))
-        self.layout_out.addWidget(self.table,0,0)
-
+        self.label111 = QLabel(f"точка: \nЭнтропия: ")
+        self.layout_out.addWidget(self.label111 )
+        
         self.widget_out = QWidget()
         self.widget_out.setLayout(self.layout_out)
         self.layout_stack.addWidget(self.widget_out)
@@ -199,17 +194,18 @@ class MainWindow(QMainWindow):
 
         x = sp.Symbol('x')
         y = sp.Symbol('y')
-        a = sp.Symbol('a')
-        a = 1.35
-        h = 0.1
-        h1= 0.1
-        itercount = 10
+        a = sp.Symbol(self.parname.text())
+        a = eval( self.parvalue.text())
+        h = eval( self.accvalue.text() )
+        h1= eval(  self.preaccvalue.text() )
+        itercount = eval(self.iterp.text())
+        vstart = [float(e) for e in eval(self.start.text()) ]
 
-        X=eval("x + y + a*x*(1-x)")
-        Y=eval("y + a*x*(1-x)")
+        X=eval(self.fun1.text())
+        Y=eval(self.fun2.text())
 
-        V1 = [eval( " ( (11**0.5)+1)/2 " ), eval( " 1 " )]
-        V2 = [eval(" ( (11**0.5)-1)/2 "),  eval("-1")]
+        V1 = [eval( self.v1x.text() ), eval( self.v1y.text() )]
+        V2 = [eval( self.v2x.text() ), eval( self.v2y.text() )]
 
 
         def length(a, b):
@@ -259,8 +255,8 @@ class MainWindow(QMainWindow):
             else: 
                 return 0
 
-        V1_x_folder = [0.0, V1[0], X.subs({x: V1[0], y: V1[1]})]
-        V1_y_folder = [0.0, V1[1], Y.subs({x: V1[0], y: V1[1]})]
+        V1_x_folder = [vstart[0], V1[0], X.subs({x: V1[0], y: V1[1]})]
+        V1_y_folder = [vstart[1], V1[1], Y.subs({x: V1[0], y: V1[1]})]
         
         for i in range(itercount-3):
             X_current =X.subs({x: V1_x_folder[-1]*h1, y: V1_y_folder[-1]*h1})
@@ -281,11 +277,11 @@ class MainWindow(QMainWindow):
         print(V1_x_folder, end = "\n\n")
         print(V1_y_folder, end = "\n\n")
 
-        X=eval("x - y")
-        Y=eval("y - a*(x-y)*(1-x+y)" )
+        X=eval(self.fun1rev.text())
+        Y=eval(self.fun2rev.text() )
 
-        V2_x_folder = [0.0, V2[0], X.subs({x: V2[0], y: V2[1]})]
-        V2_y_folder = [0.0, V2[1], Y.subs({x: V2[0], y: V2[1]})]
+        V2_x_folder = [vstart[0], V2[0], X.subs({x: V2[0], y: V2[1]})]
+        V2_y_folder = [vstart[1], V2[1], Y.subs({x: V2[0], y: V2[1]})]
 
         for i in range(itercount-3):
             X_current =X.subs({x: V2_x_folder[-1]*h1, y: V2_y_folder[-1]*h1})
@@ -323,17 +319,25 @@ class MainWindow(QMainWindow):
         
         u = intersection(V1_x_folder, V1_y_folder, V2_x_folder, V2_y_folder)
         
+        custom_colour_bg = QColor(0, 0, 139)
+        darkbluecolor = pg.mkColor(custom_colour_bg)
+        custom_colour_bg =  QColor(255, 165, 0)
+        orangecolor = pg.mkColor(custom_colour_bg)
+        
         ttemp1 = pg.PlotDataItem(np.array(u[0][0], dtype=float) , np.array(u[0][1], dtype=float) , 
-                                                                       pen=pg.mkPen("r", width=4), name='stable')
+                                                                       pen=pg.mkPen(darkbluecolor, width=4), name='stable')
         self.plot1.addItem(ttemp1)         
         ttemp2 = pg.PlotDataItem(np.array(u[1][0], dtype=float) , np.array(u[1][1], dtype=float) , 
-                                                                       pen=pg.mkPen("black", width=4), name='unstable')
+                                                                       pen=pg.mkPen(orangecolor, width=4), name='unstable')
         self.plot1.addItem(ttemp2)        
         
         print(f"stable   n {  self.stable_n}   N {  self.stable_N}")
         print(f"unstable n {self.unstable_n}   N {self.unstable_N}")
         entropia = log(max([self.stable_N,self.unstable_N]))/itercount
         print(f"Энтропия {entropia}")
+        #print(u)
+        print(u[0][0][-1],u[0][1][-1])
+        self.label111.setText(f"точка: {u[0][0][-1]}; {u[0][1][-1]}\nЭнтропия: {entropia} ")
 
 
 
