@@ -12,4 +12,8 @@ https://dic.academic.ru/dic.nsf/eng_rus/62793/гомоклиническая
 https://dic.academic.ru/dic.nsf/enc_mathematics/1192/ГОМОКЛИНИЧЕСКАЯ
 https://ru.wikipedia.org/wiki/Энтропия_динамической_системы
 
+https://github.com/ambron60/henon-attractor
+https://www.sciencedirect.com/science/article/pii/S0960077912000586
+
+
 
