@@ -1,5 +1,7 @@
+
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QWidget, QStackedLayout,QLineEdit, QGridLayout, QLabel,QTableWidget, QTableWidgetItem
-from PySide6.QtGui import QAction, QColor
+from PySide6.QtGui import QAction, QColor , QPainter, QPixmap
+from PySide6.QtCore import Qt
 import pyqtgraph as pg
 
 
@@ -12,9 +14,9 @@ class MainWindow(QMainWindow):
 #--------------------------------------------------------------------------
         self.layout_input = QGridLayout()
 
-        #default input
-
         self.txt_lineedit = QLineEdit( )
+        
+        
         self.button1 = QPushButton("построить график")
         #self.button1.clicked.connect(self.postroit1)
         self.sup1 = QLabel()
@@ -32,14 +34,26 @@ class MainWindow(QMainWindow):
 #--------------------------------------------------------------------------
         self.layout_graph = QVBoxLayout()
         
-        custom_colour = QColor(240,240,255)
-        pg_colour1 = pg.mkColor(custom_colour)
+        self.W_HIGHT = 700
+        self.W_WIDTH = 700
 		
-        self.plot1 = pg.PlotWidget()
-        self.plot1.plot([1, 2, 3, 4, 5], [30, 32, 34, 32, 33])
-        self.plot1.setBackground(pg_colour1)
-        self.layout_graph.addWidget(self.plot1)
+        self.picture_out1 = QLabel()
+        self.picture_out1.setMinimumSize(self.W_WIDTH, self.W_HIGHT)
+        self.layout_graph.addWidget( self.picture_out1)
         
+        pixmap = QPixmap(self.W_HIGHT, self.W_WIDTH)
+        pixmap.fill(Qt.white)
+
+        painter = QPainter(pixmap)
+        painter.setPen(QColor(255, 0, 0))#
+        painter.setBrush(QColor(255, 0, 0))
+        
+        painter.drawRect(int(self.W_WIDTH/2), 0, 0, self.W_HIGHT) #VERTICAL
+        painter.drawRect(0, int(self.W_HIGHT/2), self.W_WIDTH, 0) #HORISONTAL
+        
+        painter.end()
+        self.picture_out1.setPixmap(pixmap)
+
         self.widget_graph = QWidget()
         self.widget_graph.setLayout(self.layout_graph)
         self.layout_stack.addWidget(self.widget_graph)
@@ -47,11 +61,9 @@ class MainWindow(QMainWindow):
 #--------------------------------------------------------------------------
         self.layout_out = QGridLayout()
 
-        self.table = QTableWidget(10, 10, self)
-        for i in range(10):
-            for j in range(10):
-                self.table.setItem(i, j, QTableWidgetItem(f"Item {i}-{j}"))
-        self.layout_out.addWidget(self.table,0,0)
+        self.res_out1 = QLabel()
+        self.res_out1.setText(f"Количество ячеек,\n Время итерации")
+        self.layout_out.addWidget( self.res_out1)
 
         self.widget_out = QWidget()
         self.widget_out.setLayout(self.layout_out)
@@ -90,17 +102,4 @@ class MainWindow(QMainWindow):
 app = QApplication([])
 window = MainWindow()
 window.show()
-app.exec_()
-
-"""
-def string_to_lambda(s):
-    return eval(s)
-
-# Test
-s = 'lambda x: x + 2'
-f = string_to_lambda(s)
-print(f(5))
-
-
- 
-"""
+app.exec()
