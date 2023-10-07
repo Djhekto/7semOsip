@@ -100,20 +100,12 @@ class MainWindow(QMainWindow):
         custom_colour_gr = QColor(0,0,128)
         pg_colour2 = pg.mkColor(custom_colour_gr)
 		
-        #self.plot1 = pg.PlotWidget()
-        #self.plot1.setBackground(pg_colour1)
-        #self.plot1.showGrid(x=True, y=True, alpha=1.0)
+        self.plot1 = pg.PlotWidget()
+        self.plot1.setBackground(pg_colour1)
+        self.plot1.showGrid(x=True, y=True, alpha=1.0)
 
-        #temp1_o = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
-        #self.plot1.addItem(temp1_o)
-        
-        tochki = [ [0.1, 0.3], [1,2] ]
-        self.series.append(tochki)
-
-        
-        self.plot1 = QChart()
-        self.plot1.legend().hide()
-        self.plot1.addSeries(self.series)
+        temp1_o = pg.PlotDataItem(np.array([1, 2, 3, 4, 5], dtype=float),np.array([30, 32, 34, 32, 33], dtype=float), pen=pg.mkPen(pg_colour2, width=4), name='f')
+        self.plot1.addItem(temp1_o)
 
         self.button44 = QPushButton("Отчистить график")
         self.button44.clicked.connect(self.clearplot1)
@@ -310,11 +302,11 @@ class MainWindow(QMainWindow):
         orangecolor = pg.mkColor(custom_colour_bg)
         
         ttemp1 = pg.ScatterPlotItem(np.array(V1_x_folder, dtype=float) , np.array(V1_y_folder, dtype=float) , 
-                                                                       pen=pg.mkPen(darkbluecolor, width=-10), name='stable') #setData()
+                                                                       pen=pg.mkPen(darkbluecolor, width=1), name='stable') #setData()
         #ttemp1 = pg.plot(np.array(V1_x_folder, dtype=float) , np.array(V1_y_folder, dtype=float) , 
         #                                                               pen=pg.mkPen(darkbluecolor, width=1), name='stable')#,connect ="pairs") #setData()
         #plt.scatter( np.array(V1_x_folder, dtype=float) , np.array(V1_y_folder, dtype=float) )
-        #self.plot1.addItem(ttemp1)       
+        self.plot1.addItem(ttemp1)       
         
         print(f"stable   n {  self.stable_n}   N {  self.stable_N}")
         entropia = log(self.stable_N )/itercount
