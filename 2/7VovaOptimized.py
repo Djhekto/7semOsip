@@ -73,7 +73,7 @@ a = 0.3
 b = 0.2
 
 iterc = 8
-pointcounter = 8
+pointcounter = 4
 strxfunc = "x*x-y*y+a"
 stryfunc = "2*x*y+b"
 symbols = ["x","y","a","b"]
@@ -95,10 +95,12 @@ G = nx.DiGraph()
 
 for gh in range(1, (iterc+1)):
     
-    if gh <= 7:
-        G = calculate_symbolic_representation_dynamic_system(x0, x1, y0, y1, h, lengx, G, list_good_dots, pointcounter)
-    if gh >7:
-        G = calculate_symbolic_representation_dynamic_system(x0, x1, y0, y1, h, lengx, G, list_good_dots, pointcounter*4)
+    #if gh <= 7:
+    #    G = calculate_symbolic_representation_dynamic_system(x0, x1, y0, y1, h, lengx, G, list_good_dots, pointcounter)
+    #if gh >7:
+    #    G = calculate_symbolic_representation_dynamic_system(x0, x1, y0, y1, h, lengx, G, list_good_dots, pointcounter*4)
+
+    G = calculate_symbolic_representation_dynamic_system(x0, x1, y0, y1, h, lengx, G, list_good_dots, pointcounter)
 
     list_good_dots = list(G.nodes())  # номера ячеек, которые попали
 
@@ -125,7 +127,6 @@ for gh in range(1, (iterc+1)):
     
     h *= 0.5
     lengx *= 2
-    pointcounter -= 1
     print(gh, " iteration is done! Time elapsed: ", (time.time() - start_time))
 
 plt.show()

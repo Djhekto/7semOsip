@@ -43,6 +43,15 @@ class MainWindow(QMainWindow):
         
         pixmap = QPixmap(self.W_HIGHT, self.W_WIDTH)
         pixmap.fill(Qt.white)
+
+        painter = QPainter(pixmap)
+        painter.setPen(QColor(255, 0, 0))#
+        painter.setBrush(QColor(255, 0, 0))
+        
+        painter.drawRect(int(self.W_WIDTH/2), 0, 0, self.W_HIGHT) #VERTICAL
+        painter.drawRect(0, int(self.W_HIGHT/2), self.W_WIDTH, 0) #HORISONTAL
+        
+        painter.end()
         self.picture_out1.setPixmap(pixmap)
 
         self.widget_graph = QWidget()

@@ -1,5 +1,6 @@
 
 
+https://stackoverflow.com/questions/9622163/save-plot-to-image-file-instead-of-displaying-it
 https://zetcode.com/gui/pysidetutorial/drawing/
 https://github.com/Zenoro/ODU-solutions
 https://www.freecodecamp.org/news/lambda-expressions-in-python/
