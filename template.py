@@ -1,7 +1,10 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QWidget, QStackedLayout,QLineEdit, QGridLayout, QLabel,QTableWidget, QTableWidgetItem
-from PySide6.QtGui import QAction, QColor
+from PySide6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout,
+                               QPushButton, QWidget, QStackedLayout,QLineEdit,
+                               QGridLayout, QLabel,QTableWidget, 
+                               QTableWidgetItem,QGroupBox)
+from PySide6.QtGui import QAction, QColor , QPainter, QPixmap
+from PySide6.QtCore import Qt
 import pyqtgraph as pg
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
