@@ -5,10 +5,12 @@ https://zetcode.com/gui/pysidetutorial/drawing/
 https://github.com/Zenoro/ODU-solutions
 https://www.freecodecamp.org/news/lambda-expressions-in-python/
 https://www.geeksforgeeks.org/topological-sorting/
-
-
-
-
+https://stackoverflow.com/questions/17200117/how-to-get-the-object-name-from-within-the-class
+https://srinikom.github.io/pyside-docs/PySide/QtCore/QRectF.html
+https://en.wikipedia.org/wiki/Coordinate_system
+https://stackoverflow.com/questions/60918473/how-do-i-convert-pixel-screen-coordinates-to-cartesian-coordinates
+https://www.pythonguis.com/tutorials/pyside6-plotting-pyqtgraph/
+https://stackoverflow.com/questions/17200117/how-to-get-the-object-name-from-within-the-class
 
 
 

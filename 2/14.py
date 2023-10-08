@@ -12,11 +12,6 @@ import math as m
 
 #==========================================================================
 
-def cartesian_to_qrectf(x, y, height,width):
-    y_qrectf = height - y
-    x_1231 = width + x
-    return x_1231, y_qrectf
-
 def my_eval(str1):
     str2 = f"lambda x, y: {str1}"
     return eval(str2)
@@ -249,21 +244,20 @@ class MainWindow(QMainWindow):
                 
                 painter.setPen(QColor(0, 0, 0))#
                 painter.setBrush(QColor(0, 0, 0))
-                myh = int(self.h*self.mashtab)
-                if myh<1:
-                    myh = 1
+                
+                myh = int(self.h*self.mashtab+1)
+                painter.drawRect(10, 10, myh, myh)  # Draw first square
+                painter.drawRect(70, 70, myh, myh)  # Draw second square
+                painter.drawRect(130, 130, myh, myh)  # Draw third square
+                painter.end()
+
+                self.picture_out1.setPixmap(pixmap)
                 
                 for c in nx.strongly_connected_components(self.G):
                     if len(c) > 1:
                         alist = list(c)
                         for k in range(0, len(alist)):
-                            x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
-                            #print(x,y)
-                            painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
-                
-                painter.end()
-
-                self.picture_out1.setPixmap(pixmap)
+                            ss = patches.Rectangle((self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx)), self.h, self.h, color = 'blue', fill=True)
                 
             self.G.clear()
             self.newbuf = self.list_good_dots

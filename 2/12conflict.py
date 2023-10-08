@@ -6,16 +6,12 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout,
 from PySide6.QtGui import QAction, QColor , QPainter, QPixmap
 from PySide6.QtCore import Qt
 import time
+import matplotlib.pyplot as plt
 import networkx as nx
 import matplotlib.patches as patches
 import math as m
 
 #==========================================================================
-
-def cartesian_to_qrectf(x, y, height,width):
-    y_qrectf = height - y
-    x_1231 = width + x
-    return x_1231, y_qrectf
 
 def my_eval(str1):
     str2 = f"lambda x, y: {str1}"
@@ -214,9 +210,6 @@ class MainWindow(QMainWindow):
         self.G = nx.DiGraph()
         self.flag_from_iterate = 0
         self.flag_to_iterate = -1
-
-        self.mashtab = self.W_HIGHT/abs(self.y0-self.y1)
-
         print("start1 done")
     
     def iterate_from_start(self):
@@ -237,33 +230,18 @@ class MainWindow(QMainWindow):
             self.list_good_dots = list(self.G.nodes())  # номера ячеек, которые попали
 
             if gh ==  (self.flag_to_iterate):
-                pixmap = QPixmap(self.W_HIGHT, self.W_WIDTH)
-                pixmap.fill(Qt.white)
-
-                painter = QPainter(pixmap)
-                painter.setPen(QColor(255, 0, 0))#
-                painter.setBrush(QColor(255, 0, 0))
-                
-                painter.drawRect(int(self.W_WIDTH/2), 0, 0, self.W_HIGHT) #VERTICAL
-                painter.drawRect(0, int(self.W_HIGHT/2), self.W_WIDTH, 0) #HORISONTAL
-                
-                painter.setPen(QColor(0, 0, 0))#
-                painter.setBrush(QColor(0, 0, 0))
-                myh = int(self.h*self.mashtab)
-                if myh<1:
-                    myh = 1
-                
-                for c in nx.strongly_connected_components(self.G):
+                plt.figure(gh)
+                plt.title(str(gh)+" iteration")
+                plt.xlim((self.x0-1), (self.x1+1))
+                plt.ylim((self.y0-1), (self.y1+1))
+                plt.grid()
+                ax = plt.gca()    
+                for c in nx.strongly_connected_components(G):
                     if len(c) > 1:
                         alist = list(c)
                         for k in range(0, len(alist)):
-                            x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
-                            #print(x,y)
-                            painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
-                
-                painter.end()
-
-                self.picture_out1.setPixmap(pixmap)
+                            ss = patches.Rectangle((self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx)), self.h, self.h, color = 'blue', fill=True)
+                            ax.add_patch(ss)
                 
             self.G.clear()
             self.newbuf = self.list_good_dots
@@ -275,6 +253,7 @@ class MainWindow(QMainWindow):
             self.h *= 0.5
             self.lengx *= 2
             print(gh, " iteration is done! Time elapsed: ", (time.time() - start_time))
+        plt.savefig('res.png')
 
 
     def calculate_symbolic_representation_dynamic_system(self, xdown, xup, ydown, yup, h, leng, G, s_list, pt):
