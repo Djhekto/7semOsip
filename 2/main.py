@@ -7,7 +7,7 @@ from PySide6.QtGui import QAction, QColor , QPainter, QPixmap
 from PySide6.QtCore import Qt
 import time
 import networkx as nx
-import matplotlib.patches as patches
+#import matplotlib.patches as patches
 import math as m
 
 #==========================================================================
@@ -140,6 +140,7 @@ class MainWindow(QMainWindow):
         self.layout_out = QGridLayout()
 
         self.res_out1 = QLabel()
+        self.res_neout1 = ""
         self.res_out1.setText(f"Количество ячеек,\n Время итерации")
         self.layout_out.addWidget( self.res_out1)
 
@@ -214,6 +215,7 @@ class MainWindow(QMainWindow):
         self.G = nx.DiGraph()
         self.flag_from_iterate = 0
         self.flag_to_iterate = -1
+        self.res_neout1 = ""
 
         self.mashtab = self.W_HIGHT/abs(self.y0-self.y1)
 
@@ -275,6 +277,15 @@ class MainWindow(QMainWindow):
             self.h *= 0.5
             self.lengx *= 2
             print(gh, " iteration is done! Time elapsed: ", (time.time() - start_time))
+            print( ( (self.x1-self.x0 )*(self.y1-self.y0) ) / ( self.h**2 ) )
+            self.res_neout1 = self.res_neout1 + f"\n {gh} итерация. Занято времени {time.time() - start_time}\n Количество ячеек {( (self.x1-self.x0 )*(self.y1-self.y0) ) / ( self.h**2 ) }"
+            if gh ==  (self.flag_to_iterate):
+                self.res_neout1 = self.res_neout1 + f"   На этой итерации также был нарисован график"
+                self.res_out1.setText(self.res_neout1)
+
+
+
+
 
 
     def calculate_symbolic_representation_dynamic_system(self, xdown, xup, ydown, yup, h, leng, G, s_list, pt):

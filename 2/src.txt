@@ -15,3 +15,7 @@ https://stackoverflow.com/questions/17200117/how-to-get-the-object-name-from-wit
 
 
 
+
+
+//python --version
+//Python 3.10.7
