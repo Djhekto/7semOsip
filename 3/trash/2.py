@@ -9,7 +9,6 @@ import time
 import networkx as nx
 #import matplotlib.patches as patches
 import math as m
-from math import cos,sin
 
 #==========================================================================
 
@@ -20,10 +19,6 @@ def cartesian_to_qrectf(x, y, height,width):
 
 def my_eval(str1):
     str2 = f"lambda x, y: {str1}"
-    return eval(str2)
-
-def my_eval_with_t(str1):
-    str2 = f"lambda x, y, t: {str1}"
     return eval(str2)
 
 def enc(str1):
@@ -65,7 +60,7 @@ class MainWindow(QMainWindow):
         self.group1.setMaximumSize(300, 200) 
         layout1 = QGridLayout()
         self.paramnames = QLineEdit( "a,b,d,B,w" )
-        self.paramvalues = QLineEdit( "-1  ,1  ,0.25  ,0.3  ,1  " )
+        self.paramvalues = QLineEdit( "-1,1,0.25,0.3,1" )
         layout1.addWidget(self.paramnames , 0 , 0 )
         layout1.addWidget(self.paramvalues , 0, 1)
         self.group1.setLayout(layout1)        
@@ -99,11 +94,11 @@ class MainWindow(QMainWindow):
         self.group1.setMaximumSize(300, 100) 
         layout1 = QGridLayout()
         self.koefh = QLineEdit( " 0.5 ")
-        self.countp = QLineEdit( " 2 ")
+        self.countp = QLineEdit( " 4 ")
         layout1.addWidget(self.koefh , 0 , 0 )
         layout1.addWidget(self.countp , 0, 1)
         self.textrk4 = QLineEdit( " Шагов Рунге-Кутта ")
-        self.textitercountrk4 = QLineEdit( " 100 ")
+        self.textitercountrk4 = QLineEdit( " 10 ")
         layout1.addWidget(self.textrk4 , 1 , 0 )
         layout1.addWidget(self.textitercountrk4 , 1, 1)
         self.group1.setLayout(layout1)        
@@ -119,6 +114,8 @@ class MainWindow(QMainWindow):
         self.button1.clicked.connect(self.iterate_from_start)
         self.button3.clicked.connect(self.iterate_from_current)
         layout1.addWidget(self.button1 , 0, 0)
+
+        
 
         layout1.addWidget(self.globiterc1 , 0, 1)
         layout1.addWidget(self.button3 , 1 , 0 )
@@ -201,41 +198,39 @@ class MainWindow(QMainWindow):
         self.x1, self.y1 = eval( self.dot2.text())
         self.h = eval( self.koefh.text() )
         #itercount = eval(self.iterp.text())
-        self.pointcounter = eval(self.countp.text() )
-        self.rk4itercount = eval( self.textitercountrk4.text() )
-
+        self.pointcounter = eval(self.countp.text())
+        """
+        self.a = eval( self.pvalua.text() )
+        self.b = eval( self.pvalub.text() )
+        self.symb_a = str( self.pnamea.text() )
+        self.symb_b = str( self.pnameb.text() )
+        """
         self.list_par_val = eval( self.paramvalues.text() )
-        self.list_par_nam = self.paramnames.text().split(",")
+        self.list_par_nam = self.paramvalues.text().split(",")
         
         self.iterc = eval( self.globiterc1.text() )
         self.iterc2 = eval( self.globiterc2.text() )
         
         strxfunc =  str( self.fun1.text() )
         stryfunc =  str( self.fun2.text() )
-
+        """
+        strxfunc = strxfunc.replace(self.symb_a, enc(self.a))
+        strxfunc = strxfunc.replace(self.symb_b, enc(self.b))
+        stryfunc = stryfunc.replace(self.symb_a, enc(self.a))
+        stryfunc = stryfunc.replace(self.symb_b, enc(self.b))
+        """
         for i,e in enumerate( self.list_par_nam):
             strxfunc = strxfunc.replace(e, enc(self.list_par_val[i]))
-            stryfunc = stryfunc.replace(e, enc(self.list_par_val[i]))
+            stryfunc = strxfunc.replace(e, enc(self.list_par_val[i]))
         print( self.x0, self.y0,  self.x1, self.y1, self.h ,  
               self.pointcounter, self.iterc, self.iterc2,
               strxfunc, stryfunc)
 
-        self.xfunc = my_eval_with_t(strxfunc)
-        self.yfunc = my_eval_with_t(stryfunc)
+        self.xfunc = my_eval(strxfunc)
+        self.yfunc = my_eval(stryfunc)
         self.xposition = lambda cell, leng: self.x0+self.h*(cell-(cell-1)//leng*leng-1)
         self.yposition = lambda cell, leng: self.y1-self.h*((cell-1)//leng+1)
         
-        self.const_startt = 0
-        try:#for current syst
-            print(self.list_par_nam[4])
-            if self.list_par_nam[4]=="w":
-                self.const_endt = (2*3.14)/self.list_par_val[4]
-                print(self.const_endt,eval(self.textitercountrk4.text()),"  =12-3-0=213  ")
-            else:
-                print("sgahfhajsgfhgas")
-                raise ArithmeticError
-        except:                 
-            self.const_endt = 1
         self.lengx = abs(self.x1 - self.x0) / self.h
         self.lengy = abs(self.y1 - self.y0) / self.h
         self.list_good_dots = [q for q in range(1, int(self.lengx*self.lengy))]
@@ -318,11 +313,6 @@ class MainWindow(QMainWindow):
         xckl = xdown
         yckl = yup
         cell_list = []
-        shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
-        shag6= shag/6
-        shag2= shag/2
-        print(shag)
-        
         while yckl > ydown:
             while xckl < xup:
                 for i in range(0, pt):
@@ -330,32 +320,10 @@ class MainWindow(QMainWindow):
 
                     for j in range(0, pt):
                         xtmp += 1 / pt*h
-                        ttmp = 0
-                        xrzc = self.xfunc(xtmp, ytmp,ttmp)
-                        yrzc = self.yfunc(xtmp, ytmp,ttmp)
-                        ttmp += shag
-                        #ttmp1 = round(ttmp,5)
                         
-                        while True:  
-                            if ttmp>=self.const_endt:
-                                break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
-                            except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
-                            ttmp += shag
-                            xrzc = xrz
-                            yrzc = yrz
+                        xrz = self.xfunc(xtmp, ytmp)
+                        yrz = self.yfunc(xtmp, ytmp)
+                        print(xrz,yrz)
 
                         if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                             continue

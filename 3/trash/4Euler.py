@@ -9,7 +9,7 @@ import time
 import networkx as nx
 #import matplotlib.patches as patches
 import math as m
-from math import cos,sin
+from math import cos,sin, pi
 
 #==========================================================================
 
@@ -229,8 +229,8 @@ class MainWindow(QMainWindow):
         try:#for current syst
             print(self.list_par_nam[4])
             if self.list_par_nam[4]=="w":
-                self.const_endt = (2*3.14)/self.list_par_val[4]
-                print(self.const_endt,eval(self.textitercountrk4.text()),"  =12-3-0=213  ")
+                self.const_endt = (2*pi)/self.list_par_val[4]
+                print(self.const_endt,eval(self.textitercountrk4.text()),"  -------- ")
             else:
                 print("sgahfhajsgfhgas")
                 raise ArithmeticError
@@ -319,8 +319,6 @@ class MainWindow(QMainWindow):
         yckl = yup
         cell_list = []
         shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
-        shag6= shag/6
-        shag2= shag/2
         print(shag)
         
         while yckl > ydown:
@@ -334,28 +332,25 @@ class MainWindow(QMainWindow):
                         xrzc = self.xfunc(xtmp, ytmp,ttmp)
                         yrzc = self.yfunc(xtmp, ytmp,ttmp)
                         ttmp += shag
-                        #ttmp1 = round(ttmp,5)
-                        
                         while True:  
-                            if ttmp>=self.const_endt:
+                            if ttmp>self.const_endt:
                                 break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
+                            #print(ttmp, self.const_endt)
+                            try:                       
+                                xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp)*shag
+                                yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp)*shag
                             except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
+                                #print("d")
+                                xrz = 100000
+                                yrz = 100000
+                                ttmp = self.const_endt
+                                pass
                             ttmp += shag
                             xrzc = xrz
                             yrzc = yrz
+                            #if xrz>100000 or yrz>100000: break
+
+                        #print(xrz,yrz)
 
                         if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                             continue

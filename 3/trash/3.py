@@ -99,11 +99,11 @@ class MainWindow(QMainWindow):
         self.group1.setMaximumSize(300, 100) 
         layout1 = QGridLayout()
         self.koefh = QLineEdit( " 0.5 ")
-        self.countp = QLineEdit( " 2 ")
+        self.countp = QLineEdit( " 4 ")
         layout1.addWidget(self.koefh , 0 , 0 )
         layout1.addWidget(self.countp , 0, 1)
         self.textrk4 = QLineEdit( " Шагов Рунге-Кутта ")
-        self.textitercountrk4 = QLineEdit( " 100 ")
+        self.textitercountrk4 = QLineEdit( " 10 ")
         layout1.addWidget(self.textrk4 , 1 , 0 )
         layout1.addWidget(self.textitercountrk4 , 1, 1)
         self.group1.setLayout(layout1)        
@@ -230,7 +230,7 @@ class MainWindow(QMainWindow):
             print(self.list_par_nam[4])
             if self.list_par_nam[4]=="w":
                 self.const_endt = (2*3.14)/self.list_par_val[4]
-                print(self.const_endt,eval(self.textitercountrk4.text()),"  =12-3-0=213  ")
+                print(self.const_endt,"  =12-3-0=213  ")
             else:
                 print("sgahfhajsgfhgas")
                 raise ArithmeticError
@@ -319,9 +319,6 @@ class MainWindow(QMainWindow):
         yckl = yup
         cell_list = []
         shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
-        shag6= shag/6
-        shag2= shag/2
-        print(shag)
         
         while yckl > ydown:
             while xckl < xup:
@@ -334,28 +331,26 @@ class MainWindow(QMainWindow):
                         xrzc = self.xfunc(xtmp, ytmp,ttmp)
                         yrzc = self.yfunc(xtmp, ytmp,ttmp)
                         ttmp += shag
-                        #ttmp1 = round(ttmp,5)
-                        
                         while True:  
+                            #print(ttmp, self.const_endt)
                             if ttmp>=self.const_endt:
+                                try:                       
+                                    xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp-0.00001)*shag
+                                    yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp-0.00001)*shag
+                                except OverflowError:
+                                    pass
                                 break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
+                            try:                       
+                                xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp)*shag
+                                yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp)*shag
                             except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
+                                pass
                             ttmp += shag
                             xrzc = xrz
                             yrzc = yrz
+                            #if xrz>100000 or yrz>100000: break
+
+                        #print(xrz,yrz)
 
                         if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                             continue

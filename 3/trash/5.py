@@ -9,7 +9,7 @@ import time
 import networkx as nx
 #import matplotlib.patches as patches
 import math as m
-from math import cos,sin
+from math import cos,sin, pi
 
 #==========================================================================
 
@@ -229,13 +229,15 @@ class MainWindow(QMainWindow):
         try:#for current syst
             print(self.list_par_nam[4])
             if self.list_par_nam[4]=="w":
-                self.const_endt = (2*3.14)/self.list_par_val[4]
+                self.const_endt = (2*pi)/self.list_par_val[4]
                 print(self.const_endt,eval(self.textitercountrk4.text()),"  =12-3-0=213  ")
             else:
                 print("sgahfhajsgfhgas")
                 raise ArithmeticError
         except:                 
             self.const_endt = 1
+        #self.const_endt = pi*2
+
         self.lengx = abs(self.x1 - self.x0) / self.h
         self.lengy = abs(self.y1 - self.y0) / self.h
         self.list_good_dots = [q for q in range(1, int(self.lengx*self.lengy))]
@@ -261,9 +263,9 @@ class MainWindow(QMainWindow):
     def mainiteration(self):
         for gh in range(self.flag_from_iterate+1, (self.flag_to_iterate+1)):
             start_time = time.time()
-            self.G = self.calculate_symbolic_representation_dynamic_system(self.x0, self.x1, self.y0, self.y1, self.h, self.lengx, self.G, self.list_good_dots, self.pointcounter)
+            self.calculate_symbolic_representation_dynamic_system(self.x0, self.x1, self.y0, self.y1, self.h, self.lengx, self.G, self.list_good_dots, self.pointcounter,gh)
 
-            self.list_good_dots = list(self.G.nodes())  # номера ячеек, которые попали
+            #self.list_good_dots = list(self.G.nodes())  # номера ячеек, которые попали
 
             if gh ==  (self.flag_to_iterate):
                 pixmap = QPixmap(self.W_HIGHT, self.W_WIDTH)
@@ -278,9 +280,9 @@ class MainWindow(QMainWindow):
                 
                 painter.setPen(QColor(0, 0, 0))#
                 painter.setBrush(QColor(0, 0, 0))
-                myh = int(self.h*self.mashtab)
-                if myh<1:
-                    myh = 1
+                myh = float(self.h*self.mashtab)
+                #if myh<1:
+                #    myh = 1
                 
                 for c in nx.strongly_connected_components(self.G):
                     if len(c) > 1:
@@ -295,11 +297,11 @@ class MainWindow(QMainWindow):
                 self.picture_out1.setPixmap(pixmap)
                 
             self.G.clear()
-            self.newbuf = self.list_good_dots
-            self.list_good_dots = []
-            for i in range(0, len(self.newbuf)):
-                r1 = cell_dribling(self.newbuf[i], self.lengx)
-                self.list_good_dots += r1
+            #self.newbuf = self.list_good_dots
+            #self.list_good_dots = []
+            #for i in range(0, len(self.newbuf)):
+            #    r1 = cell_dribling(self.newbuf[i], self.lengx)
+            #    self.list_good_dots += r1
             
             self.h *= 0.5
             self.lengx *= 2
@@ -311,7 +313,7 @@ class MainWindow(QMainWindow):
                 self.res_out1.setText(self.res_neout1)
 
 
-    def calculate_symbolic_representation_dynamic_system(self, xdown, xup, ydown, yup, h, leng, G, s_list, pt):
+    def calculate_symbolic_representation_dynamic_system(self, xdown, xup, ydown, yup, h, leng, G, s_list, pt,gh):
         cou = 1
         xtmp = xdown
         ytmp = yup
@@ -319,8 +321,6 @@ class MainWindow(QMainWindow):
         yckl = yup
         cell_list = []
         shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
-        shag6= shag/6
-        shag2= shag/2
         print(shag)
         
         while yckl > ydown:
@@ -334,25 +334,14 @@ class MainWindow(QMainWindow):
                         xrzc = self.xfunc(xtmp, ytmp,ttmp)
                         yrzc = self.yfunc(xtmp, ytmp,ttmp)
                         ttmp += shag
-                        #ttmp1 = round(ttmp,5)
-                        
                         while True:  
-                            if ttmp>=self.const_endt:
+                            if ttmp>self.const_endt:
                                 break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
+                            try:                       
+                                xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp)*shag
+                                yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp)*shag
                             except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
+                                pass
                             ttmp += shag
                             xrzc = xrz
                             yrzc = yrz
@@ -368,9 +357,10 @@ class MainWindow(QMainWindow):
                 xckl += h
                 xtmp = xckl
                 ytmp = yckl
-                
-                for i in range(0, len(cell_list)):
-                    G.add_edge(cou, cell_list[i])
+                if gh ==  (self.flag_to_iterate):
+                    for i in range(0, len(cell_list)):
+                        self.G.add_edge(cou, cell_list[i])
+                self.list_good_dots = cell_list
                 cou += 1
                 cell_list.clear()
             yckl -= h
@@ -378,10 +368,6 @@ class MainWindow(QMainWindow):
             xtmp = xckl
             ytmp = yckl
         return G
-
-
-
-
 
 
 #==========================================================

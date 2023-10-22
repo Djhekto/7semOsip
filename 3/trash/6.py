@@ -334,7 +334,6 @@ class MainWindow(QMainWindow):
                         xrzc = self.xfunc(xtmp, ytmp,ttmp)
                         yrzc = self.yfunc(xtmp, ytmp,ttmp)
                         ttmp += shag
-                        #ttmp1 = round(ttmp,5)
                         
                         while True:  
                             if ttmp>=self.const_endt:
