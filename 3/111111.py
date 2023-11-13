@@ -331,31 +331,25 @@ class MainWindow(QMainWindow):
                     for j in range(0, pt):
                         xtmp += 1 / pt*h
                         ttmp = 0
-                        xrzc = xtmp
-                        yrzc = ytmp
                         ttmp += shag
                         #ttmp1 = round(ttmp,5)
+                        xrz = xtmp
+                        yrz = ytmp
                         
                         while True:  
                             if ttmp>=self.const_endt:
-                                break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
-                            except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
+                                break       
+                            k1 = self.xfunc(xrz, yrz,ttmp)
+                            k2 = self.xfunc(xrz+shag2, yrz+shag2*k1,ttmp)
+                            k3 = self.xfunc(xrz+shag2, yrz+shag2*k2,ttmp)
+                            k4 = self.xfunc(xrz+shag, yrz+shag*k3, ttmp)
+                            xrz = xrz + shag6*( k1+2*k2+2*k3+k4)
+                            k1 = self.yfunc(xrz, yrz,ttmp)
+                            k2 = self.yfunc(xrz+shag2, yrz+shag2*k1,ttmp)
+                            k3 = self.yfunc(xrz+shag2, yrz+shag2*k2,ttmp)
+                            k4 = self.yfunc(xrz+shag, yrz+shag*k3, ttmp)
+                            yrz = yrz + shag6*( k1+2*k2+2*k3+k4)
                             ttmp += shag
-                            xrzc = xrz
-                            yrzc = yrz
 
                         if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                             continue

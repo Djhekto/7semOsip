@@ -9,7 +9,7 @@ import time
 import networkx as nx
 #import matplotlib.patches as patches
 import math as m
-from math import cos,sin
+from math import cos,sin, pi
 
 #==========================================================================
 
@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         layout1.addWidget(self.koefh , 0 , 0 )
         layout1.addWidget(self.countp , 0, 1)
         self.textrk4 = QLineEdit( " Шагов Рунге-Кутта ")
-        self.textitercountrk4 = QLineEdit( " 100 ")
+        self.textitercountrk4 = QLineEdit( " 40 ")
         layout1.addWidget(self.textrk4 , 1 , 0 )
         layout1.addWidget(self.textitercountrk4 , 1, 1)
         self.group1.setLayout(layout1)        
@@ -229,13 +229,14 @@ class MainWindow(QMainWindow):
         try:#for current syst
             print(self.list_par_nam[4])
             if self.list_par_nam[4]=="w":
-                self.const_endt = (2*3.14)/self.list_par_val[4]
-                print(self.const_endt,eval(self.textitercountrk4.text()),"  =12-3-0=213  ")
+                self.const_endt = (2*pi)/self.list_par_val[4]
+                print(self.const_endt,eval(self.textitercountrk4.text()),"  -------- ")
             else:
                 print("sgahfhajsgfhgas")
                 raise ArithmeticError
         except:                 
             self.const_endt = 1
+        #self.const_endt = 1
         self.lengx = abs(self.x1 - self.x0) / self.h
         self.lengy = abs(self.y1 - self.y0) / self.h
         self.list_good_dots = [q for q in range(1, int(self.lengx*self.lengy))]
@@ -281,9 +282,21 @@ class MainWindow(QMainWindow):
                 myh = int(self.h*self.mashtab)
                 if myh<1:
                     myh = 1
+                    
+                print(self.G)
+                #largest_component = max(nx.connected_components(self.G), key=len)
+                #self.G = self.G.subgraph(largest_component)
                 
+                #disconnected_nodes = [node for node in nx.weakly_connected_components(self.G) if len(node) == 1]
+                disconnected_nodes = [node for node in nx.strongly_connected_components(self.G) if len(node) == 1]
+                for node in disconnected_nodes:
+                    self.G.remove_nodes_from(node)
+                print(self.G)
+
                 for c in nx.strongly_connected_components(self.G):
-                    if len(c) > 1:
+                #for c in [max(nx.kosaraju_strongly_connected_components(self.G), key=len)]:
+                    if len(c) > 0:
+                        print(c)
                         alist = list(c)
                         for k in range(0, len(alist)):
                             x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
@@ -319,8 +332,6 @@ class MainWindow(QMainWindow):
         yckl = yup
         cell_list = []
         shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
-        shag6= shag/6
-        shag2= shag/2
         print(shag)
         
         while yckl > ydown:
@@ -331,37 +342,30 @@ class MainWindow(QMainWindow):
                     for j in range(0, pt):
                         xtmp += 1 / pt*h
                         ttmp = 0
-                        xrzc = xtmp
-                        yrzc = ytmp
-                        ttmp += shag
-                        #ttmp1 = round(ttmp,5)
-                        
+                        yrz = ytmp
+                        xrz = xtmp
                         while True:  
-                            if ttmp>=self.const_endt:
+                            if ttmp>self.const_endt:
                                 break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
+                            #print(ttmp, self.const_endt)
+                            try:             
+                                yrz = yrz + self.yfunc(xrz, yrz,ttmp)*shag          
+                                xrz = xrz + self.xfunc(xrz, yrz,ttmp)*shag
                             except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
+                                #print("d")
+                                #xrz = 100000
+                                #yrz = 100000
+                                ttmp = self.const_endt
+                                pass
                             ttmp += shag
-                            xrzc = xrz
-                            yrzc = yrz
+
+                        #print(xrz,yrz)
 
                         if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                             continue
                         cell = m.floor(((yup - yrz) / h)) * leng + m.ceil((xrz - xdown) / h) // 1 + 1
-                        if not (cell in cell_list):   
-                            cell_list.append(cell)
+                        #if not (cell in cell_list):   
+                        cell_list.append(cell)
 
                     xtmp = xckl
 

@@ -9,7 +9,9 @@ import time
 import networkx as nx
 #import matplotlib.patches as patches
 import math as m
-from math import cos,sin
+from math import cos,sin, pi
+
+from sympy import Symbol, expand
 
 #==========================================================================
 
@@ -23,7 +25,13 @@ def my_eval(str1):
     return eval(str2)
 
 def my_eval_with_t(str1):
-    str2 = f"lambda x, y, t: {str1}"
+    x = Symbol("x")
+    y = Symbol("y")
+    t = Symbol("t")
+    sssstr = expand(str1)
+    print(str(sssstr))
+    str2 = f"lambda x, y, t: {str(sssstr)}"
+    #str2 = f"lambda x, y, t: {str1}"
     return eval(str2)
 
 def enc(str1):
@@ -229,8 +237,8 @@ class MainWindow(QMainWindow):
         try:#for current syst
             print(self.list_par_nam[4])
             if self.list_par_nam[4]=="w":
-                self.const_endt = (2*3.14)/self.list_par_val[4]
-                print(self.const_endt,eval(self.textitercountrk4.text()),"  =12-3-0=213  ")
+                self.const_endt = (2*pi)/self.list_par_val[4]
+                print(self.const_endt,eval(self.textitercountrk4.text()),"  -------- ")
             else:
                 print("sgahfhajsgfhgas")
                 raise ArithmeticError
@@ -240,6 +248,7 @@ class MainWindow(QMainWindow):
         self.lengy = abs(self.y1 - self.y0) / self.h
         self.list_good_dots = [q for q in range(1, int(self.lengx*self.lengy))]
         self.G = nx.DiGraph()
+        self.G1= nx.DiGraph()
         self.flag_from_iterate = 0
         self.flag_to_iterate = -1
         self.res_neout1 = ""
@@ -262,6 +271,15 @@ class MainWindow(QMainWindow):
         for gh in range(self.flag_from_iterate+1, (self.flag_to_iterate+1)):
             start_time = time.time()
             self.G = self.calculate_symbolic_representation_dynamic_system(self.x0, self.x1, self.y0, self.y1, self.h, self.lengx, self.G, self.list_good_dots, self.pointcounter)
+            biglist = [[]]
+            for c in nx.strongly_connected_components(self.G):
+                if len(c) > 1:
+                    print(c)
+                    biglist.append(list(c))
+
+            
+            print(self.G1,self.G,biglist)
+
 
             self.list_good_dots = list(self.G.nodes())  # номера ячеек, которые попали
 
@@ -282,13 +300,20 @@ class MainWindow(QMainWindow):
                 if myh<1:
                     myh = 1
                 
+                mycountforpainter = 0
                 for c in nx.strongly_connected_components(self.G):
                     if len(c) > 1:
                         alist = list(c)
+                        makeanumber0to255 = int(abs(255*sin(mycountforpainter) ) )
+                        #print(makeanumber0to255)
+                        painter.setPen(QColor(0, makeanumber0to255, makeanumber0to255))#
+                        painter.setBrush(QColor(0, makeanumber0to255, makeanumber0to255))
+                        mycountforpainter+=0.1
                         for k in range(0, len(alist)):
                             x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
                             #print(x,y)
                             painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
+
                 
                 painter.end()
 
@@ -319,8 +344,6 @@ class MainWindow(QMainWindow):
         yckl = yup
         cell_list = []
         shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
-        shag6= shag/6
-        shag2= shag/2
         print(shag)
         
         while yckl > ydown:
@@ -334,28 +357,25 @@ class MainWindow(QMainWindow):
                         xrzc = xtmp
                         yrzc = ytmp
                         ttmp += shag
-                        #ttmp1 = round(ttmp,5)
-                        
                         while True:  
-                            if ttmp>=self.const_endt:
+                            if ttmp>self.const_endt:
                                 break
-                            try:         
-                                k1 = self.xfunc(xrzc, yrzc,ttmp)
-                                k2 = self.xfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.xfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.xfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                xrz = xrzc + shag6*( k1+2*k2+2*k3+k4)
-                                k1 = self.yfunc(xrzc, yrzc,ttmp)
-                                k2 = self.yfunc(xrzc+shag2, yrzc+shag2*k1,ttmp)
-                                k3 = self.yfunc(xrzc+shag2, yrzc+shag2*k2,ttmp)
-                                k4 = self.yfunc(xrzc+shag, yrzc+shag*k3, ttmp)
-                                yrz = yrzc + shag6*( k1+2*k2+2*k3+k4)
+                            #print(ttmp, self.const_endt)
+                            try:                       
+                                xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp)*shag
+                                yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp)*shag
                             except OverflowError:
-                                xrz = xrzc
-                                yrz = yrzc
+                                #print("d")
+                                xrz = 100000
+                                yrz = 100000
+                                ttmp = self.const_endt
+                                pass
                             ttmp += shag
                             xrzc = xrz
                             yrzc = yrz
+                            #if xrz>100000 or yrz>100000: break
+
+                        #print(xrz,yrz)
 
                         if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                             continue
