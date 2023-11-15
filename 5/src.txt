@@ -1,0 +1,23 @@
+g++.exe -fdiagnostics-color=always -g D:\ttemp1\7semOsip\5\1.cpp -o D:\ttemp1\7semOsip\5\1.exe -lgdi32
+g++.exe -municode -fdiagnostics-color=always -g D:\ttemp1\7semOsip\5\1.cpp -o D:\ttemp1\7semOsip\5\1.exe -lgdi32
+
+g++ -I D:\ttemp1\1mgui\imgui-master\imgui.cppD:\ttemp1\1mgui\imgui-master\imgui_demo.cpp D:\ttemp1\1mgui\imgui-master\imgui_draw.cpp D:\ttemp1\1mgui\imgui-master\imgui_widgets.cpp D:\ttemp1\1mgui\imgui-master\imgui_demo.cpp -o your_output_file
+D:\ttemp1\1mgui\imgui-master\imgui.cpp
+D:\ttemp1\1mgui\imgui-master\imgui_demo.cpp 
+D:\ttemp1\1mgui\imgui-master\imgui_draw.cpp 
+D:\ttemp1\1mgui\imgui-master\imgui_widgets.cpp
+
+g++.exe -I path_to_imgui -fdiagnostics-color=always -g path_to_imgui/imgui.cpp path_to_imgui/imgui_demo.cpp path_to_imgui/imgui_draw.cpp path_to_imgui/imgui_widgets.cpp -o demo.exe
+g++.exe -I path_to_imgui -fdiagnostics-color=always -g path_to_imgui/imgui.cpp path_to_imgui/imgui_demo.cpp path_to_imgui/imgui_draw.cpp path_to_imgui/imgui_widgets.cpp -o demo.exe
+
+g++ -I D:\ttemp1\7semOsip\5\ your_cpp_file.cpp -o your_output_file
+
+
+
+g++ -I D:\ttemp1\7semOsip\5\include 4.cpp include\imgui.cpp include\imgui_draw.cpp include\imgui_widgets.cpp include\imgui_impl_opengl3.cpp include\imgui_impl_glfw.cpp -o 4.exe -lglfw3 -lopengl32
+
+
+
+
+https://www.msys2.org/
+https://friendlyuser.github.io/posts/tech/cpp/Using_Dear_ImGui_in_C++_A_Guide_to_Immediate_Mode_GUIs/
