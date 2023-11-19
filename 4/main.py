@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 import time
 import networkx as nx
 import math as m
-from math import cos,sin, pi
+from math import cos,sin, pi, sqrt
 
 from sympy import Symbol, expand
 
@@ -100,23 +100,30 @@ class MainWindow(QMainWindow):
         self.group1.setMaximumSize(300, 100) 
         layout1 = QGridLayout()
         self.dot1 = QLineEdit( " -2,-2 ")
+        self.dot12 = QLabel( "x")
         self.dot2 = QLineEdit( " 2,2 ")
+        
         layout1.addWidget(self.dot1 , 0 , 0 )
-        layout1.addWidget(self.dot2 , 0, 1)
+        layout1.addWidget(self.dot12 , 0 , 1 )
+        layout1.addWidget(self.dot2 , 0, 2)
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,2 ,0 )
         
         self.group1 = QGroupBox("Коэфициент переразбиения и количество точек ") #    отображаемых в ячейки")
         self.group1.setMaximumSize(300, 100) 
         layout1 = QGridLayout()
+        self.ssssssss1 = QLabel("Изменяем диаметр ячейки на")
         self.koefh = QLineEdit( " 0.5 ")
-        self.countp = QLineEdit( " 8 ")
-        layout1.addWidget(self.koefh , 0 , 0 )
-        layout1.addWidget(self.countp , 0, 1)
-        self.textrk4 = QLineEdit( " Шагов Рунге-Кутта ")
+        layout1.addWidget(self.ssssssss1 , 0 , 0 )
+        layout1.addWidget(self.koefh , 0 , 1 )
+        self.ssssssss2 = QLabel("Отображаем точек в ячейке ")
+        self.countp = QLineEdit( " 64 ")
+        layout1.addWidget(self.ssssssss2 , 1 , 0 )        
+        layout1.addWidget(self.countp , 1, 1)
+        self.ssssssss3 = QLabel("Шагов Рунге-Кутта")
         self.textitercountrk4 = QLineEdit( " 20 ")
-        layout1.addWidget(self.textrk4 , 1 , 0 )
-        layout1.addWidget(self.textitercountrk4 , 1, 1)
+        layout1.addWidget(self.ssssssss3 , 3 , 0 )
+        layout1.addWidget(self.textitercountrk4 , 3, 1)
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,2 ,1 )
         
@@ -219,7 +226,7 @@ class MainWindow(QMainWindow):
         self.x1, self.y1 = eval( self.dot2.text())
         self.h = eval( self.koefh.text() )
         #itercount = eval(self.iterp.text())
-        self.pointcounter = eval(self.countp.text() )
+        self.pointcounter = int(sqrt(eval(self.countp.text() )))
         self.rk4itercount = eval( self.textitercountrk4.text() )
 
         self.list_par_val = eval( self.paramvalues.text() )
@@ -313,13 +320,13 @@ class MainWindow(QMainWindow):
                     makeanumber50to150 = int(abs(50+100*sin(mycountforpainter) ) )
                     painter.setPen(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))#
                     painter.setBrush(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))
-                    mycountforpainter+=0.001
+                    #mycountforpainter+=0.0005
 
                     if len(alist)>1:
                         
-                        makeanumber100to255 = int(abs(100+155*sin(mycountforpainter1) ) )
-                        painter.setPen(QColor(255, 0, makeanumber100to255))#
-                        painter.setBrush(QColor(255, 0, makeanumber100to255))
+                        makeanumber100to255 = int(abs(255*sin(mycountforpainter1) ) )
+                        painter.setPen(QColor(0, 255, makeanumber100to255))#
+                        painter.setBrush(QColor(0, 255, makeanumber100to255))
                         mycountforpainter1+=0.5
 
                         self.savekosarajures.append(alist)
