@@ -9,17 +9,17 @@
 #include <vector>
 #include <fstream>
 
-//#define x0 -2
-//#define y0 2
+#define x0 -2
+#define y0 2
 
-//#define L 4 //wtf chel oblast1 delaet kak dlinnu
-//#define H 4
+#define L 4
+#define H 4
 #define v 2 //������ ������ ��������� ���������
-//#define a 0.3
-//#define b 0.2
+#define a 0.28
+#define b 0.113
 
-//#define scale 200
-//#define iterations 8//10
+#define scale 200
+#define iterations 5//10
 #define MAXITER 20
 
 using namespace std;
@@ -34,12 +34,12 @@ map<long long,set<long long>> gr;
 vector<char> used;
 vector<long long> order, component;
 
-double j_x(double x, double y, double a)
+double j_x(double x, double y)
 {
     return x*x-y*y+a;
 }
 
-double j_y(double x, double y, double b)
+double j_y(double x, double y)
 {
     return 2*x*y+b;
 }
@@ -60,19 +60,9 @@ void dfs2 (long long v1) {
 			dfs2 (*i);
 }
 
-int main(int argc, char** argv)
+int main()
 {
     time_t start=time(NULL);
-
-    int x0 = atoi(argv[1]);
-    int y0 = atoi(argv[2]);
-    int L = atoi(argv[3]);
-    int H = atoi(argv[4]);
-    double a = atof(argv[5]);
-    double b = atof(argv[6]);
-    int iterations = atoi(argv[7]);
-
-    //======================================================================
 
     double u=double(v);
     long long num_cells=(L/u)*(H/u);
@@ -101,8 +91,8 @@ int main(int argc, char** argv)
             {
                 for (double j=du; j<u; j+=du)
                 {
-                    double x_new=j_x(xc_0+i,yc_0-j, a);
-                    double y_new=j_y(xc_0+i,yc_0-j, b);
+                    double x_new=j_x(xc_0+i,yc_0-j);
+                    double y_new=j_y(xc_0+i,yc_0-j);
                     long long new_cell=0;
                     if ((x_new<=x0) || (x_new>=x0+L)) continue;
                     if ((y_new>=y0) || (y_new<=y0-H)) continue;
@@ -369,15 +359,13 @@ int main(int argc, char** argv)
             }
         }
     }
-    fout<<counter<<" "<<num_cells<<endl;
-    fout<<comps<<endl;
     fout.close();
-    //cout<<"u = "<<u<<endl;
+    cout<<"u = "<<u<<endl;
     cout<<"cells: "<<counter<<"/"<<num_cells<<endl;
     cout<<"components: "<<comps<<endl;
     cout<<"time all: "<<int(sec/60)<<" min "<<sec%60<<" sec"<<endl;
     cout<<"time cr: "<<int(cr/60)<<" min "<<cr%60<<" sec"<<endl;
-    //system("python draw.py");
+    system("python draw.py");
     return 0;
 }
 

@@ -7,8 +7,9 @@ from PySide6.QtGui import QAction, QColor , QPainter, QPixmap
 from PySide6.QtCore import Qt
 import time
 import networkx as nx
+#import matplotlib.patches as patches
 import math as m
-from math import cos,sin, pi, sqrt
+from math import cos,sin, pi
 
 from sympy import Symbol, expand
 
@@ -60,15 +61,11 @@ class MainWindow(QMainWindow):
 
         self.group1 = QGroupBox("Система уравнений")
         self.group1.setMaximumSize(300, 200) 
-        layout1 = QGridLayout()
-        self.funlabel1 = QLabel("dx/dt = ")
-        self.funlabel2 = QLabel("dy/dt = ")        
+        layout1 = QVBoxLayout()
         self.fun1 = QLineEdit( " y " )
         self.fun2 = QLineEdit( " - a*x - b*x**3 - d*y  + B * cos(w*t) " )
-        layout1.addWidget(self.funlabel1,0,0)
-        layout1.addWidget(self.funlabel2,1,0)
-        layout1.addWidget(self.fun1,0,1)
-        layout1.addWidget(self.fun2,1,1)
+        layout1.addWidget(self.fun1)
+        layout1.addWidget(self.fun2)
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,1 , 0)
         
@@ -100,30 +97,23 @@ class MainWindow(QMainWindow):
         self.group1.setMaximumSize(300, 100) 
         layout1 = QGridLayout()
         self.dot1 = QLineEdit( " -2,-2 ")
-        self.dot12 = QLabel( "x")
         self.dot2 = QLineEdit( " 2,2 ")
-        
         layout1.addWidget(self.dot1 , 0 , 0 )
-        layout1.addWidget(self.dot12 , 0 , 1 )
-        layout1.addWidget(self.dot2 , 0, 2)
+        layout1.addWidget(self.dot2 , 0, 1)
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,2 ,0 )
         
         self.group1 = QGroupBox("Коэфициент переразбиения и количество точек ") #    отображаемых в ячейки")
         self.group1.setMaximumSize(300, 100) 
         layout1 = QGridLayout()
-        self.ssssssss1 = QLabel("Изменяем диаметр ячейки на")
         self.koefh = QLineEdit( " 0.5 ")
-        layout1.addWidget(self.ssssssss1 , 0 , 0 )
-        layout1.addWidget(self.koefh , 0 , 1 )
-        self.ssssssss2 = QLabel("Отображаем точек в ячейке ")
-        self.countp = QLineEdit( " 64 ")
-        layout1.addWidget(self.ssssssss2 , 1 , 0 )        
-        layout1.addWidget(self.countp , 1, 1)
-        self.ssssssss3 = QLabel("Шагов Рунге-Кутта")
-        self.textitercountrk4 = QLineEdit( " 20 ")
-        layout1.addWidget(self.ssssssss3 , 3 , 0 )
-        layout1.addWidget(self.textitercountrk4 , 3, 1)
+        self.countp = QLineEdit( " 2 ")
+        layout1.addWidget(self.koefh , 0 , 0 )
+        layout1.addWidget(self.countp , 0, 1)
+        self.textrk4 = QLineEdit( " Шагов Рунге-Кутта ")
+        self.textitercountrk4 = QLineEdit( " 40 ")
+        layout1.addWidget(self.textrk4 , 1 , 0 )
+        layout1.addWidget(self.textitercountrk4 , 1, 1)
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,2 ,1 )
         
@@ -137,23 +127,16 @@ class MainWindow(QMainWindow):
         self.button1.clicked.connect(self.iterate_from_start)
         self.button3.clicked.connect(self.iterate_from_current)
         layout1.addWidget(self.button1 , 0, 0)
+
         layout1.addWidget(self.globiterc1 , 0, 1)
         layout1.addWidget(self.button3 , 1 , 0 )
         layout1.addWidget(self.globiterc2 , 1, 1)
         self.group1.setLayout(layout1)        
         self.layout_input.addWidget( self.group1 ,3 ,0 )
         
-        self.group1 = QGroupBox("Кнопки")
-        self.group1.setMaximumSize(300, 100) 
-        layout1 = QGridLayout()
         self.button2 = QPushButton("Отчистить старые данные и занести новые ")
         self.button2.clicked.connect(self.start1)
-        layout1.addWidget( self.button2 ,3 ,1 )
-        self.buttonkosaragu = QPushButton("Вывести примерные координаты аттрактора ")
-        self.buttonkosaragu.clicked.connect(self.finddotinkosaragures)
-        layout1.addWidget( self.buttonkosaragu ,4 ,1 )
-        self.group1.setLayout(layout1)        
-        self.layout_input.addWidget( self.group1 ,3 ,1 )
+        self.layout_input.addWidget( self.button2 ,3 ,1 )
         
         self.widget_input = QWidget()
         self.widget_input.setLayout(self.layout_input)
@@ -226,7 +209,7 @@ class MainWindow(QMainWindow):
         self.x1, self.y1 = eval( self.dot2.text())
         self.h = eval( self.koefh.text() )
         #itercount = eval(self.iterp.text())
-        self.pointcounter = int(sqrt(eval(self.countp.text() )))
+        self.pointcounter = eval(self.countp.text() )
         self.rk4itercount = eval( self.textitercountrk4.text() )
 
         self.list_par_val = eval( self.paramvalues.text() )
@@ -287,8 +270,8 @@ class MainWindow(QMainWindow):
     def mainiteration(self):
         for gh in range(self.flag_from_iterate+1, (self.flag_to_iterate+1)):
             start_time = time.time()
-
             self.calculate_symbolic_representation_dynamic_system(self.x0, self.x1, self.y0, self.y1, self.h, self.lengx, self.G, self.list_good_dots, self.pointcounter,gh)
+                    
             self.list_good_dots = list(self.G.nodes())  # номера ячеек, которые попали
 
             if gh ==  (self.flag_to_iterate):
@@ -308,33 +291,47 @@ class MainWindow(QMainWindow):
                 if myh<1:
                     myh = 1
                 
-
+                #disconnected_nodes = [node for node in nx.strongly_connected_components(self.G) if len(node) == 1]
+                #for node in disconnected_nodes:
+                #    self.G.remove_nodes_from(node)
+                #print(self.G)
                 
                 self.savekosarajures=[]
                 mycountforpainter = 0
                 mycountforpainter1 = 0
                 
-                for c in nx.kosaraju_strongly_connected_components(self.G):
+                makeanumber100to255 = int(abs(255*sin(mycountforpainter1) ) )
+                painter.setPen(QColor(0, 255, makeanumber100to255))#
+                painter.setBrush(QColor(0, 255, makeanumber100to255))
+                
+                print( max(nx.kosaraju_strongly_connected_components(self.G1), key=len) )
+                for ii,c in enumerate(nx.kosaraju_strongly_connected_components(self.G1)):
+#                for ii,c in enumerate(max(nx.kosaraju_strongly_connected_components(self.G1), key=len)):
+#                for ii,c in enumerate(nx.strongly_connected_components(self.G1)):
                     alist = list(c)
 
-                    makeanumber50to150 = int(abs(50+100*sin(mycountforpainter) ) )
-                    painter.setPen(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))#
-                    painter.setBrush(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))
+                    makeanumber50to150 = int(abs(255*sin(mycountforpainter) ) )
+                    #painter.setPen(QColor(0, makeanumber50to150, 255))#
+                    #painter.setBrush(QColor(0, makeanumber50to150, 255))
 
                     if len(alist)>1:
                         
-                        makeanumber100to255 = int(abs(255*sin(mycountforpainter1) ) )
+                        print(ii)
                         painter.setPen(QColor(0, 255, makeanumber100to255))#
                         painter.setBrush(QColor(0, 255, makeanumber100to255))
                         mycountforpainter1+=0.5
-                        #mycountforpainter+=0.05
-
+                        mycountforpainter+=0.01
+                        makeanumber50to150 = int(abs(255*sin(mycountforpainter) ) )
+                        makeanumber100to255 = int(abs(255*sin(mycountforpainter1) ) )
                         self.savekosarajures.append(alist)
                         
                     for k in range(0, len(alist)):
                         x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
                         painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
-                #print(self.savekosarajures)
+                    #iiiiiiiiii+=1
+                    #if iiiiiiiiii>3000:
+                    #    break;
+
                 
                 painter.end()
 
@@ -353,7 +350,7 @@ class MainWindow(QMainWindow):
             print( ( (self.x1-self.x0 )*(self.y1-self.y0) ) / ( self.h**2 ) )
             self.res_neout1 = self.res_neout1 + f"\n {gh} итерация. Занято времени {time.time() - start_time}\n Количество ячеек {( (self.x1-self.x0 )*(self.y1-self.y0) ) / ( self.h**2 ) }"
             if gh ==  (self.flag_to_iterate):
-                self.res_neout1 = self.res_neout1 + f" \nНа этой итерации также был нарисован график и посчитана топологическая сортировка графа "
+                self.res_neout1 = self.res_neout1 + f"   На этой итерации также был нарисован график"
                 self.res_out1.setText(self.res_neout1)
 
 
@@ -366,6 +363,7 @@ class MainWindow(QMainWindow):
         cell_list = []
         shag = (self.const_endt - self.const_startt)/eval(self.textitercountrk4.text())
         print(shag)
+        #print(self.list_good_dots)
         counter_the_one_we_are_on_now = 0
         
         while yckl > ydown:
@@ -384,24 +382,28 @@ class MainWindow(QMainWindow):
                             while True:  
                                 if ttmp>self.const_endt:
                                     break
+                                #print(ttmp, self.const_endt)
                                 try:                       
                                     xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp)*shag
                                     yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp)*shag
                                 except OverflowError:
+                                    #print("d")
                                     xrz = 100000
                                     yrz = 100000
                                     ttmp = self.const_endt
+                                    pass
                                 ttmp += shag
                                 xrzc = xrz
                                 yrzc = yrz
+                                #if xrz>100000 or yrz>100000: break
+
+                            #print(xrz,yrz)
 
                             if xrz < xdown or xrz > xup or yrz < ydown or yrz > yup:
                                 continue
                             cell = m.floor(((yup - yrz) / h)) * leng + m.ceil((xrz - xdown) / h) // 1 + 1
-                            #if not (cell in cell_list):
-                                #if cell in self.list_good_dots: #gh>1
-                                    #cell_list.append(cell)
-                            self.G.add_edge(cou, cell)
+                            if not (cell in cell_list):   
+                                cell_list.append(cell)
 
                         xtmp = xckl
 
@@ -409,80 +411,26 @@ class MainWindow(QMainWindow):
                 xtmp = xckl
                 ytmp = yckl
                 
+                for i in range(0, len(cell_list)):
+                    if cou!=cell_list[i]:
+                        self.G.add_edge(cou, cell_list[i])
+                
                 cou += 1
                 cell_list.clear()
             yckl -= h
             xckl = xdown
             xtmp = xckl
             ytmp = yckl
-
-        for i in range(10):
-            nodesbeforethat = self.G.number_of_nodes()
-            nodes_to_remove = [node for node, in_degree in self.G.in_degree() if in_degree <= 0]
-            self.G.remove_nodes_from(nodes_to_remove)
-            if self.G.number_of_nodes() == nodesbeforethat:
-                break
-
+        self.G1 = self.G.reverse(copy=True)
+        print(self.G1)
+        #if gh>10:
+        #disconnected_nodes = [node for node in nx.strongly_connected_components(self.G1) if len(node) == 1]
+        nodes_to_remove = [node for node, in_degree in G.in_degree() if in_degree == 0]
+        #for node in disconnected_nodes:
+        #    self.G.remove_nodes_from(node)
+        G.remove_nodes_from(nodes_to_remove)
+        print(self.G)
         return
-
-    def finddotinkosaragures(self):
-#        self.savekosarajures
-#        self.xposition = lambda cell, leng: self.x0+self.h*(cell-(cell-1)//leng*leng-1)
-#        self.yposition = lambda cell, leng: self.y1-self.h*((cell-1)//leng+1)
-# x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
-        self.h *= 2
-        self.lengx *= 0.5
-        self.lengy = self.lengx
-        pt = 15
-        shag = 0.01
-        h = self.h
-        self.res_neout1 = self.res_neout1 + f"\nПредполагаемые точки аттракторов: \n"
-        for i,elem in enumerate(self.savekosarajures):
-            breakboth = False
-            if len(elem) > 0:
-                for cell in elem:
-                    x0 = self.xposition(cell, self.lengx)
-                    y0 = self.yposition(cell, self.lengy)
-                    xtmp = x0
-                    ytmp = y0
-                    #maxxtoprint = -100
-                    #minytoprint = -100
-                    if breakboth == True:
-                            break
-                    for i in range(0, pt):
-                        ytmp -= 1 / pt*h
-                        if breakboth == True:
-                            break
-                        for j in range(0, pt):
-                            xtmp += 1 / pt*h
-                            ttmp = 0
-                            xrzc = xtmp
-                            yrzc = ytmp
-                            ttmp += shag
-                            while True:  
-                                if ttmp>self.const_endt:
-                                    break
-                                try:                       
-                                    xrz = xrzc + self.xfunc(xrzc, yrzc,ttmp)*shag
-                                    yrz = yrzc + self.yfunc(xrzc, yrzc,ttmp)*shag
-                                except OverflowError:
-                                    xrz = 100000
-                                    yrz = 100000
-                                    ttmp = self.const_endt
-                                ttmp += shag
-                                
-                            #print(x0, x0+h, y0-h ,y0)
-                            if xrz < x0+h and xrz > x0 and yrz < y0 and yrz > y0-h:
-                                print(xrz,yrz,i,cell)
-                                breakboth = True
-                                self.res_neout1 = self.res_neout1 + f" {xrz}, {yrz} \n"
-                                break
-              
-        self.res_out1.setText(self.res_neout1)   
-        self.h *= 0.5
-        self.lengx *= 2
-        self.lengy = self.lengx    
-        pass
 
 
 #==========================================================

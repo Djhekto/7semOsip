@@ -320,6 +320,7 @@ class MainWindow(QMainWindow):
                     makeanumber50to150 = int(abs(50+100*sin(mycountforpainter) ) )
                     painter.setPen(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))#
                     painter.setBrush(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))
+                    #mycountforpainter+=0.0005
 
                     if len(alist)>1:
                         
@@ -327,7 +328,6 @@ class MainWindow(QMainWindow):
                         painter.setPen(QColor(0, 255, makeanumber100to255))#
                         painter.setBrush(QColor(0, 255, makeanumber100to255))
                         mycountforpainter1+=0.5
-                        #mycountforpainter+=0.05
 
                         self.savekosarajures.append(alist)
                         
