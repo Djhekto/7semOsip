@@ -207,7 +207,17 @@ class MainWindow(QMainWindow):
         if self.iternum == int(self.globiterc1.text()):
             print(matr)
             print(f" собственные значения {eig(matr)[0]}")
-            self.res_neout1 = f"{matr}\nСобственные значения: {eig(matr)[0][0]} {eig(matr)[0][1]} {eig(matr)[0][2]}\n"
+            zn1 = str(eig(matr)[0][0])
+            zn2 = str(eig(matr)[0][1])
+            zn3 = str(eig(matr)[0][2])
+            if zn1[-3]=="0":
+                zn1 = zn1.split("+")[0]
+            if zn2[-3]=="0":
+                zn2 = zn2.split("+")[0]
+            if zn3[-3]=="0":
+                zn3 = zn3.split("+")[0]
+            
+            self.res_neout1 = f"{matr}\nСобственные значения: {zn1} {zn2} {zn3}\n"
         self.start = time.time()
         
         os.system(f".\main.exe {a11} {a12} {a13} {a21} {a22} {a23} {a31} {a32} {a33} {self.iternum}")

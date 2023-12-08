@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
     def __init__(self,name11):
         super(MainWindow, self).__init__()
         self.name = name11
-        self.setWindowTitle("Топологическая сортировка")
+        self.setWindowTitle("")
         self.layout_stack = QStackedLayout()
 
 #--------------------------------------------------------------------------
@@ -314,12 +314,21 @@ class MainWindow(QMainWindow):
                 mycountforpainter = 0
                 mycountforpainter1 = 0
                 
-                for c in nx.kosaraju_strongly_connected_components(self.G):
+                #self.G1 = self.G.reverse(copy=True)
+                max_component = max(nx.kosaraju_strongly_connected_components(self.G), key=len)
+                odnaych = list(max_component)[0]
+                nodes_with_route_to_odnaych = nx.ancestors(self.G, odnaych)
+                for e in nodes_with_route_to_odnaych:
+                    x,y = cartesian_to_qrectf(self.xposition(e, self.lengx), self.yposition(e, self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
+                    painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
+#                for c in nx.kosaraju_strongly_connected_components(self.G):
+                """
+                for c in nx.kosaraju_strongly_connected_components(self.G1):
                     alist = list(c)
 
-                    makeanumber50to150 = int(abs(50+100*sin(mycountforpainter) ) )
-                    painter.setPen(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))#
-                    painter.setBrush(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))
+                    makeanumber50to150 = int(abs(255*sin(mycountforpainter) ) )
+                    painter.setPen(QColor(0, makeanumber50to150, 255))#
+                    painter.setBrush(QColor(0, makeanumber50to150, 255))
 
                     if len(alist)>1:
                         
@@ -327,13 +336,15 @@ class MainWindow(QMainWindow):
                         painter.setPen(QColor(0, 255, makeanumber100to255))#
                         painter.setBrush(QColor(0, 255, makeanumber100to255))
                         mycountforpainter1+=0.5
-                        #mycountforpainter+=0.05
+                        mycountforpainter+=0.5
 
                         self.savekosarajures.append(alist)
-                        
                     for k in range(0, len(alist)):
                         x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
                         painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
+                        #if len(alist)>1:
+                        #    break;
+                """
                 #print(self.savekosarajures)
                 
                 painter.end()
@@ -401,7 +412,6 @@ class MainWindow(QMainWindow):
                             #if not (cell in cell_list):
                                 #if cell in self.list_good_dots: #gh>1
                                     #cell_list.append(cell)
-                            #if cou!=cell:
                             self.G.add_edge(cou, cell)
 
                         xtmp = xckl
@@ -417,12 +427,12 @@ class MainWindow(QMainWindow):
             xtmp = xckl
             ytmp = yckl
 
-        for i in range(10):
-            nodesbeforethat = self.G.number_of_nodes()
-            nodes_to_remove = [node for node, in_degree in self.G.in_degree() if in_degree <= 0]
-            self.G.remove_nodes_from(nodes_to_remove)
-            if self.G.number_of_nodes() == nodesbeforethat:
-                break
+        #for i in range(10):
+        #    nodesbeforethat = self.G.number_of_nodes()
+        #    nodes_to_remove = [node for node, in_degree in self.G.in_degree() if in_degree <= 0]
+        #    self.G.remove_nodes_from(nodes_to_remove)
+        #    if self.G.number_of_nodes() == nodesbeforethat:
+        #        break
 
         return
 
