@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
         self.group1.setMaximumSize(300, 200) 
         layout1 = QGridLayout()
         self.button1 = QPushButton("Построить график для итераций:")
-        self.globiterc1 = QLineEdit( " 7 ")
+        self.globiterc1 = QLineEdit( " 9 ")
         self.button1.clicked.connect(self.iterate_from_start)
         #self.button3 = QPushButton("[x]Проитерировать существующий:")
         #self.globiterc2 = QLineEdit( " 1 ")
