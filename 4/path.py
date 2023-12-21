@@ -22,19 +22,22 @@ def cartesian_to_qrectf(x, y, height,width):
 def my_eval(str1):
     str2 = f"lambda x, y: {str1}"
     return eval(str2)
-
+"""
 def my_eval_with_t(str1):
     x = Symbol("x")
     y = Symbol("y")
     t = Symbol("t")
     sssstr = expand(str1)
-    print(str(sssstr))
     str2 = f"lambda x, y, t: {str(sssstr)}"
-    #str2 = f"lambda x, y, t: {str1}"
+    return eval(str2)
+"""
+def my_eval_with_t(str1):
+    str2 = f"lambda x, y, t: {str(str1)}"
     return eval(str2)
 
+
 def enc(str1):
-    if type(str1)!=type("a"):        str1 = str(str1)
+    if type(str1)!=type("a"): str1 = str(str1)
     return "(" + str1 + ")"
 
 def cell_dribling(item, leng):
@@ -315,7 +318,7 @@ class MainWindow(QMainWindow):
                 mycountforpainter1 = 0
                 
                 #self.G1 = self.G.reverse(copy=True)
-                max_component = max(nx.kosaraju_strongly_connected_components(self.G), key=len)
+                max_component = max(nx.strongly_connected_components(self.G), key=len)
                 odnaych = list(max_component)[0]
                 nodes_with_route_to_odnaych = nx.ancestors(self.G, odnaych)
                 for e in nodes_with_route_to_odnaych:

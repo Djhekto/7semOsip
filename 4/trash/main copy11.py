@@ -14,6 +14,36 @@ from sympy import Symbol, expand
 
 #==========================================================================
 
+def topological_generations11(G):
+    if not G.is_directed():
+        raise nx.NetworkXError("Topological sort not defined on undirected graphs.")
+
+    multigraph = G.is_multigraph()
+    indegree_map = {v: d for v, d in G.in_degree() if d > 0}
+    zero_indegree = [v for v, d in G.in_degree() if d == 0]
+
+    while zero_indegree:
+        this_generation = zero_indegree
+        zero_indegree = []
+        for node in this_generation:
+            if node not in G:
+                raise RuntimeError("Graph changed during iteration")
+            for child in G.neighbors(node):
+                try:
+                    indegree_map[child] -= len(G[node][child]) if multigraph else 1
+                except KeyError as err:
+                    raise RuntimeError("Graph changed during iteration") from err
+                if indegree_map[child] == 0:
+                    zero_indegree.append(child)
+                    del indegree_map[child]
+        yield this_generation
+
+    #if indegree_map:
+    #    raise nx.NetworkXUnfeasible(
+    #        "Graph contains a cycle or graph changed during iteration"
+    #    )
+
+
 def cartesian_to_qrectf(x, y, height,width):
     y_qrectf = height - y
     x_1231 = width + x
@@ -314,30 +344,23 @@ class MainWindow(QMainWindow):
                 mycountforpainter = 0
                 mycountforpainter1 = 0
                 
-                #print(nx.flow_hierarchy(self.G))nx.recursive_simple_cycles(G)
-                #print(nx.recursive_simple_cycles(self.G))
-                for c in nx.kosaraju_strongly_connected_components(self.G):
-                #for c in nx.topological_sort(self.G):
-                #for c in nx.flow_hierarchy(self.G):
-                    alist = list(c)
-
+                for c in nx.topological_sort(self.G):
+                    
+                    print(c)
                     makeanumber50to150 = int(abs(50+100*sin(mycountforpainter) ) )
                     painter.setPen(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))#
                     painter.setBrush(QColor(makeanumber50to150, makeanumber50to150, makeanumber50to150))
+                    
+                    makeanumber100to255 = int(abs(255*sin(mycountforpainter1) ) )
+                    painter.setPen(QColor(0, 255, makeanumber100to255))#
+                    painter.setBrush(QColor(0, 255, makeanumber100to255))
+                    mycountforpainter1+=0.5
+                    #mycountforpainter+=0.05
 
-                    if len(alist)>1:
-                        
-                        makeanumber100to255 = int(abs(255*sin(mycountforpainter1) ) )
-                        painter.setPen(QColor(0, 255, makeanumber100to255))#
-                        painter.setBrush(QColor(0, 255, makeanumber100to255))
-                        mycountforpainter1+=0.5
-                        #mycountforpainter+=0.05
-
-                        self.savekosarajures.append(alist)
-                        
-                    for k in range(0, len(alist)):
-                        x,y = cartesian_to_qrectf(self.xposition(alist[k], self.lengx), self.yposition(alist[k], self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
-                        painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
+                    self.savekosarajures.append(c)
+                    
+                    x,y = cartesian_to_qrectf(self.xposition(c, self.lengx), self.yposition(c, self.lengx),  max([self.y1,self.y0]), max([self.x1,self.x0]) )
+                    painter.drawRect( x*self.mashtab,y*self.mashtab , myh, myh)
                 #print(self.savekosarajures)
                 
                 painter.end()

@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
     def __init__(self,name11):
         super(MainWindow, self).__init__()
         self.name = name11
-        self.setWindowTitle("Построение меры максимальной энтропии")
+        self.setWindowTitle("Усреднение функции")
         self.layout_stack = QStackedLayout()
 
 #--------------------------------------------------------------------------
